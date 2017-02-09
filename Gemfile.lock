@@ -1,0 +1,21 @@
+PATH
+  remote: .
+  specs:
+    bitmovin-api (0.0.1.pre)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    rake (11.2.2)
+    yard (0.9.8)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  bitmovin-api!
+  rake
+  yard
+
+BUNDLED WITH
+   1.14.3
