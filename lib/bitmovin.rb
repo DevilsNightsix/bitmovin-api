@@ -2,6 +2,7 @@
 
 require 'bitmovin/helpers'
 require 'bitmovin/input'
+require 'bitmovin/output'
 
 module Bitmovin
   
