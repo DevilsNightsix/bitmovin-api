@@ -14,4 +14,7 @@ Gem::Specification.new do |s|
   s.license       = 'MIT'
   s.add_development_dependency "yard"
   s.add_development_dependency "rake"
+  s.add_development_dependency "byebug"
+  s.add_development_dependency "guard"
+  s.add_development_dependency "guard-minitest"
 end

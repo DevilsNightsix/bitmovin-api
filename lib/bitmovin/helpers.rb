@@ -19,11 +19,7 @@ module Bitmovin
     # @return [String] valid json string
     #
     def prepare_request_json(hash)
-      json = hash.inject({}) do |acc, props|
-        acc[camelize(props.first.to_s, false)] = props.last
-        acc
-      end
-
+      json = deep_camelize_keys(hash)
       JSON.generate(json)
     end
 
@@ -36,14 +32,46 @@ module Bitmovin
     #
     def prepare_response_json(json)
       json = JSON.parse json
-
-      json.inject({}) do |acc, props|
-        acc[underscore(props.first.to_s).to_sym] = props.last
-        acc
-      end
+      deep_underscore_keys json
     rescue => e
       nil
     end
+
+    ##
+    # Converts hash keys to string in camelCase
+    # @param subject [Hash] Hash to be converted
+    # @param first_letter_in_uppercase [Boolean] Is first letter should be uppercased
+    #
+    # @return [Hash] converted hash with stringified keys in camelCase
+    def deep_camelize_keys(subject, first_letter_in_uppercase = false)
+      init_value = Hash.new
+      subject.inject init_value do |acc, props|
+        acc[camelize(props.first.to_s, first_letter_in_uppercase).to_sym] = case props.last
+          when Hash then deep_camelize_keys(props.last, first_letter_in_uppercase)
+          when Array then props.last.map { |i| deep_camelize_keys(i, first_letter_in_uppercase) }
+          else props.last
+          end
+        acc
+      end
+    end
+
+    ##
+    # Converts hash keys to symbols in snake_case
+    # @param subject [Hash] Hash to be converted
+    #
+    # @return [Hash] converted hash with symbolized keys in snake_case
+    def deep_underscore_keys(subject)
+      init_value = subject.class.new if subject.is_a?(Hash) || subject.is_a?(Array)
+      subject.inject init_value do |acc, props|
+        acc[underscore(props.first.to_s).to_sym] = case props.last
+          when Hash then deep_underscore_keys(props.last)
+          when Array then props.last.map { |i| deep_underscore_keys(i) }
+          else props.last
+          end
+        acc
+      end
+    end
+
 
     ##
     # Extracts AWS S3 bucket name from url
@@ -78,6 +106,14 @@ module Bitmovin
     end
 
     protected
+
+    def headers
+      @headers ||= {
+        'Content-Type' => "application/json",
+        'bitcodin-api-version' => 'v1',
+        'bitcodin-api-key' => Bitmovin.api_key
+      }
+    end
 
 
     def camelize(lower_case_and_underscored_word, first_letter_in_uppercase = true)
