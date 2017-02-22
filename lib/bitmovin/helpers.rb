@@ -32,9 +32,12 @@ module Bitmovin
     #
     def prepare_response_json(json)
       json = JSON.parse json
-      deep_underscore_keys json
-    rescue => e
-      nil
+
+      if json.is_a?(Hash)
+        deep_underscore_keys json
+      elsif json.is_a?(Array)
+        json.map { |ji| deep_underscore_keys(ji) }
+      end
     end
 
     ##
@@ -48,7 +51,7 @@ module Bitmovin
       subject.inject init_value do |acc, props|
         acc[camelize(props.first.to_s, first_letter_in_uppercase).to_sym] = case props.last
           when Hash then deep_camelize_keys(props.last, first_letter_in_uppercase)
-          when Array then props.last.map { |i| deep_camelize_keys(i, first_letter_in_uppercase) }
+          when Array then props.last.map { |i| i.is_a?(Hash) ? deep_camelize_keys(i, first_letter_in_uppercase) : i }
           else props.last
           end
         acc
@@ -65,7 +68,7 @@ module Bitmovin
       subject.inject init_value do |acc, props|
         acc[underscore(props.first.to_s).to_sym] = case props.last
           when Hash then deep_underscore_keys(props.last)
-          when Array then props.last.map { |i| deep_underscore_keys(i) }
+          when Array then props.last.map { |i| i.is_a?(Hash) ? deep_underscore_keys(i) : i }
           else props.last
           end
         acc

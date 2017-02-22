@@ -1,0 +1,4068 @@
+FORMAT: 1A
+HOST: https://portal.bitcodin.com/api
+
+# bitmovin REST API
+## The bitmovin API
+The bitmovin encoding API enables you to interact directly with the bitmovin encoding service. This comes along with the possibility to integrate bitmovin directly into your application, web portal, media workflows, etc. and fully automate your encoding process.
+
+bitmovin also provides a wide range of [API clients](https://bitmovin.com/encoding-api/#API_Clients) for the most common programming languages and platforms. These clients are a wrapper on top of our REST API to ease development and help out customers to integrate the bitmovin encoding with lowest efforts.
+
+**It is highly recommended to use our [API clients](https://bitmovin.com/encoding-api/#API_Clients), which simplify the integration of our service and help you to onboard quickly!**
+## Request Format
+GET requests have their parameter in the URL. For POST and PUT requests, the request body must be JSON, with the Content-Type header set to application/json.
+
+Authentication is done via HTTP headers. The bitcodin-api-key header authenticates the endpoint, you just have to use your bitmovin API key. You can find your API key in the bitmovin portal in your account settings as shown below:
+
+![bitcodin settings dialog with API key](https://cloudfront-prod.bitmovin.com/wp-content/uploads/2016/04/api-key.png)
+
+Secure communication using HTTPs is also possible. API requests can select a specific API version using the `bitcodin-api-version` header. Here you can see a header example:
+
+```HTTP
+Content-Type: application/json
+bitcodin-api-version: v1
+bitcodin-api-key: yoursuperfancyencryptedapikey
+``` 
+
+For Javascript usage, bitcodin supports cross-origin resource sharing (CORS), so that users can use these headers in conjunction with XMLHttpRequest.
+
+## Response Header
+
+The response format for all requests is a JSON object.
+
+Whether a request succeeded is indicated by the HTTP status code. A 2xx status code indicates success, whereas a 4xx status code indicates failure. When a request fails, the response body is still JSON, but always contains information which you can use for debugging. 
+
+## Basic API Example
+
+In the following you can see an sample request to add an new input file to bitcodin. This is a POST request, containing the JSON with the URL to the input video: 
+
+Header
+```HTTP
+Content-Type: application/json
+bitcodin-api-version: v1
+bitcodin-api-key: yoursuperfancyencryptedapikey
+```
+Body
+```HTTP
+{ 
+    "type": "url",
+    "url": "http://www.example.com/yourfolder/yourmovie.mp4"
+}
+```
+
+Once this request is send, bitcodin will add this input video to your account, and you can also see it in the web interface at http://portal.bitcodin.com. bitcodin will respond to the API request with the details on the newly created input, e.g.:
+
+Header
+```HTTP
+Content-Type: application/json
+```
+Body
+```HTTP
+{
+    "inputId": 3,
+    "filename": "yourmovie.mp4",
+    "createdAt": {
+        "date": "11.03.2015 16:41:00",
+        "timezone": {
+            "timezone_type": 3,
+            "timezone": "Europe/Berlin"
+        }
+    },
+    "updatedAt": {
+        "date": "11.03.2015 16:41:00",
+        "timezone": {
+            "timezone_type": 3,
+            "timezone": "Europe/Berlin"
+        }
+    },
+    "thumbnailUrl": "http://www.example.com/yourfolder/yourmovie_thumb.png",
+    "inputType": "url",
+    "url": "http://www.example.com/yourfolder/yourmovie.mp4",
+    "basicAuthUser": "",
+    "basicAuthPassword": "",
+    "mediaConfigurations": [
+        {
+            "streamId": 0,
+            "duration": 0,
+            "rate": 24,
+            "codec": "h264",
+            "type": "video",
+            "bitrate": 0,
+            "width": 1280,
+            "height": 544,
+            "pixelFormat": "yuv420p"
+        },
+        {
+            "streamId": 1,
+            "duration": 0,
+            "rate": 48000,
+            "codec": "ac3",
+            "type": "audio",
+            "bitrate": 640000,
+            "sampleFormat": 6,
+            "channelFormat": 5.1
+        }
+    ]
+}
+```
+# Group Inputs
+Inputs represent videos of the user, which can be retrieved from an input location such as an FTP server, an HTTP Web server or a cloud storage such as Amazon S3 or Google Compute Storage. 
+
+Once an input is created in the bitcodin system - either in the web portal, or using the bitcodin API - the video file is analyzed to get information on the number and details of audio and video tracks. Furthermore, bitcodin generates a preview picture (thumbnail) of the content, which can be used to check the content or as thumbnails for video players.
+## Create Inputs [/input/create]
+### Create an URL Input [POST]
+Creates a new input in the bitcodin system from an HTTP(S) or (S)FTP source that can be used for a encoding job.
+
++ Attributes(object)
+    + type: urlInputType (required, string) - For URL input, this must be URL or FTP
+    + url: http://yourdomain.com/yourfile.mkv (required, string) - Valid HTTP URL to your file (Allowed protocols: http(s),(s)ftp)
+    + username: your_username (optional, string) - Basic Auth Username
+    + password: your_password (optional, string) - Basic Auth Password
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikeyF
+
+    + Body
+
+            { 
+                "type": "url",
+                "url": "http://www.example.com/yourfolder/yourmovie.mp4"
+            }
+            
+
+           
++ Response 201 (application/json)
+        
+        {
+            "inputId": 3,
+            "status": "CREATED",
+            "statusDescription": "Successfully created input!",
+            "filename": "yourmovie.mp4",
+            "createdAt": {
+                "date": "11.03.2015 16:41:00",
+                "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "Europe/Berlin"
+                }
+            },
+            "updatedAt": {
+                "date": "11.03.2015 16:41:00",
+                "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "Europe/Berlin"
+                }
+            },
+            "thumbnailUrl": "http://www.example.com/yourfolder/yourmovie_thumb.png",
+            "inputType": "url",
+            "url": "http://www.example.com/yourfolder/yourmovie.mp4",
+            "basicAuthUser": "",
+            "basicAuthPassword": "",
+            "mediaConfigurations": [
+                {
+                    "streamId": 0,
+                    "duration": 0,
+                    "rate": 24,
+                    "codec": "h264",
+                    "type": "video",
+                    "bitrate": 0,
+                    "width": 1280,
+                    "height": 544,
+                    "pixelFormat": "yuv420p"
+                },
+                {
+                    "streamId": 1,
+                    "duration": 0,
+                    "rate": 48000,
+                    "codec": "ac3",
+                    "type": "audio",
+                    "bitrate": 640000,
+                    "sampleFormat": 6,
+                    "channelFormat": 5.1
+                }
+            ]
+        }
+
+### Create an GCS Input [POST]
+Creates a new input in the bitcodin system from an GCS source that can be used for an encoding job.
+
++ Attributes(object)
+    + type: inputType (required, string) - Input type must be "gcs" for GCS Input
+    + accessKey: YourGCSAccessKey (required, string) - Your GCS AccessKey
+    + secretKey: YourGCSSecretKey (required, string) - Your GCS SecretKey
+    + bucket: YourGCSBucket (required, string) - Your GCS bucket name
+    + objectKey: pathOnBucket/to/your/file.mp4 (required, string) - Path to your input file
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikeyF
+
+    + Body
+
+            {
+                "type":"gcs",
+                "accessKey":"ourAccessKey",
+                "secretKey":"ourSecretKey",
+                "bucket":"yourbucketname",
+                "objectKey":"Sintel.2010.720p.mkv"
+            }
+            
+          
++ Response 201 (application/json)
+        
+        {
+          "inputId": 18049,
+          "status": "CREATED",
+          "statusDescription": "Successfully created input!",
+          "filename": "Sintel.2010.720p.mkv",
+          "createdAt": {
+            "date": "03.09.2015 14:27:12",
+            "timezone": {
+              "timezone_type": 3,
+              "timezone": "UTC"
+            }
+          },
+          "updatedAt": {
+            "date": "03.09.2015 14:27:12",
+            "timezone": {
+              "timezone_type": 3,
+              "timezone": "UTC"
+            }
+          },
+          "thumbnailUrl": "//eu-storage-bitcodin.storage.googleapis.com/bitStorage/70_1300799def8754f3d04d4ba59ecc6e69/previews/55e858bd84a6d_55e858bf158b2_thumb.png",
+          "inputType": "gcs",
+          "host": "",
+          "bucket": "yourbucketname",
+          "prefix": "",
+          "accessKey": "ourAccessKey",
+          "secretKey": "ourSecretKey",
+          "mediaConfigurations": [
+            {
+              "streamId": 0,
+              "duration": 0,
+              "rate": 24,
+              "codec": "h264",
+              "type": "video",
+              "bitrate": 0,
+              "width": 1280,
+              "height": 544,
+              "pixelFormat": "yuv420p",
+              "sampleAspectRatioNum": 1,
+              "sampleAspectRatioDen": 1,
+              "displayAspectRatioNum": 40,
+              "displayAspectRatioDen": 17,
+              "closedCaptions": false
+            },
+            {
+              "streamId": 1,
+              "duration": 0,
+              "rate": 48000,
+              "codec": "ac3",
+              "type": "audio",
+              "bitrate": 640000,
+              "sampleFormat": 6,
+              "channelFormat": 5.1
+            }
+          ]
+        }
+
+
+### Create an S3 Input [POST]
+Creates a new input in the bitcodin system from an S3 source that can be used for an encoding job.
+
++ Attributes(object)
+    + type: inputType (required, string) - Input type must be "s3" for S3 Input
+    + accessKey: YourAWSAccessKey (required, string) - Your AWS AccessKey
+    + secretKey: YourAWSSecretKey (required, string) - Your AWS SecretKey
+    + bucket: YourS3Bucket (required, string) - Your S3 bucket name
+    + region: BucketRegion (required, string) - bucket region, e.g. eu-west-1
+    + objectKey: pathOnBucket/to/your/file.mp4 (required, string) - Path to your input file
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikeyF
+
+    + Body
+
+            {
+                "type":"s3",
+                "accessKey":"ourAccessKey",
+                "secretKey":"ourSecretKey",
+                "bucket":"yourbucketname",
+                "region":"eu-west-1",
+                "objectKey":"Sintel.2010.720p.mkv"
+            }
+            
+          
++ Response 201 (application/json)
+        
+        {
+          "inputId": 18049,
+          "status": "CREATED",
+          "statusDescription": "Successfully created input!",
+          "filename": "Sintel.2010.720p.mkv",
+          "createdAt": {
+            "date": "03.09.2015 14:27:12",
+            "timezone": {
+              "timezone_type": 3,
+              "timezone": "UTC"
+            }
+          },
+          "updatedAt": {
+            "date": "03.09.2015 14:27:12",
+            "timezone": {
+              "timezone_type": 3,
+              "timezone": "UTC"
+            }
+          },
+          "thumbnailUrl": "//eu-storage-bitcodin.storage.googleapis.com/bitStorage/70_1300799def8754f3d04d4ba59ecc6e69/previews/55e858bd84a6d_55e858bf158b2_thumb.png",
+          "inputType": "s3",
+          "host": "",
+          "bucket": "bitbucketireland",
+          "region": "eu-west-1",
+          "prefix": "",
+          "accessKey": "ourAccessKey",
+          "secretKey": "ourSecretKey",
+          "mediaConfigurations": [
+            {
+              "streamId": 0,
+              "duration": 0,
+              "rate": 24,
+              "codec": "h264",
+              "type": "video",
+              "bitrate": 0,
+              "width": 1280,
+              "height": 544,
+              "pixelFormat": "yuv420p",
+              "sampleAspectRatioNum": 1,
+              "sampleAspectRatioDen": 1,
+              "displayAspectRatioNum": 40,
+              "displayAspectRatioDen": 17,
+              "closedCaptions": false
+            },
+            {
+              "streamId": 1,
+              "duration": 0,
+              "rate": 48000,
+              "codec": "ac3",
+              "type": "audio",
+              "bitrate": 640000,
+              "sampleFormat": 6,
+              "channelFormat": 5.1
+            }
+          ]
+        }
+
+
+### Create an Azure Input [POST]
+Creates a new input in the bitcodin system from an Azure Blob Storage source that can be used for an encoding job.
+
++ Attributes(object)
+    + type: inputType (required, string) - Input type must be "abs" for Azure Blob Storage Input
+    + accountName: yourAzureAccountName (required, string) - Your Azure Account Name
+    + accountKey: yourAzureAccountKey (required, string) - Your Azure Account Key
+    + url: https://yourAccountName.blob.core.windows.net/yourContainerName/videoObjectInContainer.mkv (required, string) - The URL Path to your Video file
+    + container: yourAzureStorageContainer (optional, string) - Your Azure Storage Container Name
+
+
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikeyF
+
+    + Body
+
+            {
+                "type":"abs",
+                "accountName":"yourAzureAccountName",
+                "accountKey":"yourAzureAccountKey",
+                "container":"yourAzureStorageContainer",
+                "url":"https://yourAccountName.blob.core.windows.net/yourContainerName/videoObjectInContainer.mkv"
+            }
+            
+          
++ Response 201 (application/json)
+        
+            {
+              "inputId": 25286,
+              "status": "CREATED",
+              "statusDescription": "Successfully created input!",
+              "filename": "https://yourAccountName.blob.core.windows.net/yourContainerName/videoObjectInContainer.mkv",
+              "createdAt": {
+                "date": "02.10.2015 06:05:38",
+                "timezone" : {
+                  "timezone_type": 3,
+                  "timezone": "UTC"
+                }
+              },
+              "updatedAt": {
+                "date": "02.10.2015 06:05:38",
+                "timezone": {
+                  "timezone_type": 3,
+                  "timezone": "UTC"
+                }
+              },
+              "thumbnailUrl": "//eu-storage-bitcodin.storage.googleapis.com/bitStorage/1168_3a6168e498f4367791c2df685dd9ef17/previews/560e1eaece0b5_560e1eb0b04d7_thumb.png",
+              "inputType": "abs",
+              "mediaConfigurations": [
+                {
+                  "streamId": 0,
+                  "duration": 0,
+                  "rate": 24,
+                  "codec": "h264",
+                  "type": "video",
+                  "bitrate": 0,
+                  "width": 1920,
+                  "height": 818,
+                  "pixelFormat": "yuv420p",
+                  "sampleAspectRatioNum": 1,
+                  "sampleAspectRatioDen": 1,
+                  "displayAspectRatioNum": 960,
+                  "displayAspectRatioDen": 409,
+                  "closedCaptions": false
+                },
+                {
+                  "streamId": 1,
+                  "duration": 0,
+                  "rate": 48000,
+                  "codec": "ac3",
+                  "type": "audio",
+                  "bitrate": 640000,
+                  "sampleFormat": 6,
+                  "channelFormat": 5.1
+                }
+              ]
+            }
+
+### Create an Aspera Input [POST]
+Creates a new input in the bitcodin system from an Aspera source that can be used for an encoding job.
+
++ Attributes(object)
+    + type: inputType (required, string) - Input type must be "aspera" for Aspera Input
+    + url: fasp://urlof/your/asperasource/video.mp4 (required, string) - The URL Path to your Video file
+    + minBandwidth: minimal_download_bandwidth (optional, string) - Minimal download bandwidth. Examples: 100k, 100m, 100g
+    + maxBandwidth: maximal_download_bandwidth (optional, string) - Maximal download bandwidth. Examples: 100k, 100m, 100g
+
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikeyF
+
+    + Body
+
+            {
+                "type":"aspera",
+                "url":"fasp://[user[:password]@]urlof/your/asperasource/video.mp4",
+                "minBandwidth":"300k",
+                "maxBandwidth":"1g"
+            }
+            
+          
++ Response 201 (application/json)
+        
+            {
+              "inputId": 26296,
+              "status": "CREATED",
+              "statusDescription": "Successfully created input!",
+              "filename": "video.mp4",
+              "createdAt": {
+                "date": "02.10.2015 06:05:38",
+                "timezone": {
+                  "timezone_type": 3,
+                  "timezone": "UTC"
+                }
+              },
+              "updatedAt": {
+                "date": "02.10.2015 06:05:38",
+                "timezone": {
+                  "timezone_type": 3,
+                  "timezone": "UTC"
+                }
+              },
+              "thumbnailUrl": "//eu-storage-bitcodin.storage.googleapis.com/bitStorage/1168_3a6168e498f4367791c2df685dd9ef17/previews/560e1eaece0b5_560e1eb0b04d7_thumb.png",
+              "inputType": "aspera",
+              "mediaConfigurations": [
+                {
+                  "streamId": 0,
+                  "duration": 0,
+                  "rate": 24,
+                  "codec": "h264",
+                  "type": "video",
+                  "bitrate": 0,
+                  "width": 1920,
+                  "height": 818,
+                  "pixelFormat": "yuv420p",
+                  "sampleAspectRatioNum": 1,
+                  "sampleAspectRatioDen": 1,
+                  "displayAspectRatioNum": 960,
+                  "displayAspectRatioDen": 409,
+                  "closedCaptions": false
+                },
+                {
+                  "streamId": 1,
+                  "duration": 0,
+                  "rate": 48000,
+                  "codec": "ac3",
+                  "type": "audio",
+                  "bitrate": 640000,
+                  "sampleFormat": 6,
+                  "channelFormat": 5.1
+                }
+              ]
+            }
+
+## Asynchronous inputs [/input/createasync]
+
+### Create an asynchronous Input [POST /input/createasync]
+Creates a new input in the bitcodin system asynchronously. You can use the same request body as you would for synchronous inputs.
+
++ Attributes(object)
+    + type: url (required, string) - For URL input, this must be URL or FTP, see appropriate input types above
+    + url: http://yourdomain.com/yourfile.mkv (required, string) - Valid HTTP URL to your file (Allowed protocols: http(s),(s)ftp)
+    + username: your_username (optional, string) - Basic Auth Username
+    + password: your_password (optional, string) - Basic Auth Password
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikeyF
+
+    + Body
+
+            {
+                "inputType": "url",
+                "url": "http://s3.amazonaws.com/akamai.netstorage/HD_downloads/earth_night_rotate_1080.mov"
+            }
+            
+
+           
++ Response 201 (application/json)
+        
+    + Body
+    
+            {
+                "inputId": 57412,
+                "status": "ENQUEUED",
+                "statusDescription": "Enqueued input creation",
+                "filename": "earth_night_rotate_1080.mov",
+                "createdAt": {
+                    "date": "20.11.2015 09:06:21",
+                    "timezone": {
+                        "timezone_type": 3,
+                        "timezone": "UTC"
+                    }
+                },
+                "updatedAt": {
+                    "date": "20.11.2015 09:06:21",
+                    "timezone": {
+                        "timezone_type": 3,
+                        "timezone": "UTC"
+                    }
+                },
+                "thumbnailUrl": "",
+                "inputType": "url",
+                "url": "http://s3.amazonaws.com/akamai.netstorage/HD_downloads/earth_night_rotate_1080.mov"
+            }
+
+### Get asynchronous input status [GET /input/{id}/asyncstatus]
+Gets the status for an asynchronously created input.
+
++ Parameters
+    + id (required, integer) ... Asynchronous Input ID
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+        
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+                "inputId": 57412,
+                "status": "CREATED",
+                "statusDescription": "Successfully created input!"
+            }
+
+
+
+## Analyze Inputs [/input/{id}/analyze]
+### Analyze an Input [PATCH]
+An existing input will be analyzed again and a new thumbnail will be created.
+
++ Parameters
+    + id (required, integer) ... Input-ID
+
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+        
++ Response 200 (application/json)
+        
+        {
+            "inputId": 3,
+            "filename": "yourmovie.mp4",
+            "createdAt": {
+                "date": "11.03.2015 16:41:00",
+                "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "Europe/Berlin"
+                }
+            },
+            "updatedAt": {
+                "date": "11.03.2015 16:41:00",
+                "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "Europe/Berlin"
+                }
+            },
+            "thumbnailUrl": "http://www.example.com/yourfolder/yourmovie_thumb.png",
+            "inputType": "url",
+            "url": "http://www.example.com/yourfolder/yourmovie.mp4",
+            "basicAuthUser": "",
+            "basicAuthPassword": "",
+            "mediaConfigurations": [
+                {
+                    "streamId": 0,
+                    "duration": 0,
+                    "rate": 24,
+                    "codec": "h264",
+                    "type": "video",
+                    "bitrate": 0,
+                    "width": 1280,
+                    "height": 544,
+                    "pixelFormat": "yuv420p"
+                },
+                {
+                    "streamId": 1,
+                    "duration": 0,
+                    "rate": 48000,
+                    "codec": "ac3",
+                    "type": "audio",
+                    "bitrate": 640000,
+                    "sampleFormat": 6,
+                    "channelFormat": 5.1
+                }
+            ]
+        }
+
+## List Inputs [/inputs/{page}]
+### List all Inputs [GET]
+List all inputs of your account structured as pages.
++ Parameters
+    + page (optional, integer) ... page number. If page number doesn't exist, last page will be returned. (10 Inputs per page)
+        + Default: 1
+        
++ Request (application/json)
+
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+    
++ Response 200 (application/json)
+
+        {
+            "perPage": 10,
+            "totalCount": 2,
+            "inputs": [
+                {
+                    "inputId": 2,
+                    "filename": "yourmovie.mp4",
+                        "createdAt": {
+                        "date": "11.03.2015 16:41:00",
+                        "timezone": {
+                            "timezone_type": 3,
+                            "timezone": "Europe/Berlin"
+                        }
+                    },
+                    "updatedAt": {
+                        "date": "11.03.2015 16:41:00",
+                        "timezone": {
+                            "timezone_type": 3,
+                            "timezone": "Europe/Berlin"
+                        }
+                    },
+                    "thumbnailUrl": "http://www.example.com/yourfolder/yourmovie_thumb.png",
+                    "inputType": "url",
+                    "url": "http://www.example.com/yourfolder/yourmovie.mp4",
+                    "basicAuthUser": "",
+                    "basicAuthPassword": "",
+                    "mediaConfigurations": [
+                        {
+                            "streamId": 0,
+                            "duration": 0,
+                            "rate": 24,
+                            "codec": "h264",
+                            "type": "video",
+                            "bitrate": 0,
+                            "width": 1280,
+                            "height": 720,
+                            "pixelFormat": "yuv420p"
+                        },
+                        {
+                            "streamId": 1,
+                            "duration": 0,
+                            "rate": 48000,
+                            "codec": "ac3",
+                            "type": "audio",
+                            "bitrate": 640000,
+                            "sampleFormat": 6,
+                            "channelFormat": 5.1
+                        }
+                    ]
+                },
+                {
+                    "inputId": 1,
+                    "filename": "yourmovie.mp4",
+                        "createdAt": {
+                        "date": "11.03.2015 16:41:00",
+                        "timezone": {
+                            "timezone_type": 3,
+                            "timezone": "Europe/Berlin"
+                        }
+                    },
+                    "updatedAt": {
+                        "date": "11.03.2015 16:41:00",
+                        "timezone": {
+                            "timezone_type": 3,
+                            "timezone": "Europe/Berlin"
+                        }
+                    },
+                    "thumbnailUrl": "http://www.example.com/yourfolder/yourmovie_thumb.png",
+                    "inputType": "url",
+                    "url": "http://www.example.com/yourfolder/yourmovie.mp4",
+                    "basicAuthUser": "",
+                    "basicAuthPassword": "",
+                    "mediaConfigurations": [
+                        {
+                            "streamId": 0,
+                            "duration": 0,
+                            "rate": 23.916666666667,
+                            "codec": "h264",
+                            "type": "video",
+                            "bitrate": 0,
+                            "width": 960,
+                            "height": 512,
+                            "pixelFormat": "yuv420p"
+                        },
+                        {
+                            "streamId": 1,
+                            "duration": 0,
+                            "rate": 48000,
+                            "codec": "aac",
+                            "type": "audio",
+                            "bitrate": 126750,
+                            "sampleFormat": 2,
+                            "channelFormat": "stereo"
+                        }
+                    ]
+                }
+            ]
+        }
+
+## Input Details [/input/{id}]
+### Get Input details [GET]
+This call can be used to get detailed information about an already created input.
+
+The response will contain a attribute called "status" amongst various other attributes. It can take the following values with it:
+
+| Value           | Description |
+|-----------------|-------------|
+| ENQUEUED        | The input has been enqueued and waits for to be processed. |
+| PROCESSING      | The input is being analyzed at the moment. |
+| CREATED         | The input-analyzation has finished successfully. |
+| ERROR           | Some error occured while processing the input. |
+
++ Parameters
+    + id (required, integer) ... Input-ID
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+        
++ Response 200 (application/json)
+        
+        {
+            "inputId": 2,
+            "filename": "yourmovie.mp4",
+        "createdAt": {
+                "date": "11.03.2015 16:41:00",
+                "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "Europe/Berlin"
+                }
+            },
+            "updatedAt": {
+                "date": "11.03.2015 16:41:00",
+                "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "Europe/Berlin"
+                }
+            },
+            "thumbnailUrl": "http://www.example.com/yourfolder/yourmovie_thumb.png",
+            "inputType": "url",
+            "url": "http://www.example.com/yourfolder/yourmovie.mp4",
+            "basicAuthUser": "",
+            "basicAuthPassword": "",
+            "mediaConfigurations": [
+                {
+                    "streamId": 0,
+                    "duration": 0,
+                    "rate": 24,
+                    "codec": "h264",
+                    "type": "video",
+                    "bitrate": 0,
+                    "width": 1280,
+                    "height": 720,
+                    "pixelFormat": "yuv420p"
+                },
+                {
+                    "streamId": 1,
+                    "duration": 0,
+                    "rate": 48000,
+                    "codec": "ac3",
+                    "type": "audio",
+                    "bitrate": 640000,
+                    "sampleFormat": 6,
+                    "channelFormat": 5.1
+                }
+            ]
+        }
+### Delete Input [DELETE]
+Deletes an input from the bitcodin system.
++ Parameters
+    + id (required, integer) ... Input-ID
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+        
++ Response 204 (application/json)
+
+# Group Outputs
+The encoded videos can either be stored on the bitcodin storage - which is a highly reliable and redundant cloud storage - or transferred to any output location such as a FTP server, a Cloud-Storage or DropBox. Furthermore, finished encoding jobs can be downloaded as .zip archive from the bitcodin storage.
+
+Once an output is created, bitcodin checks if the credentials are valid as well as if it is allowed to write files, and provides detailed feedback if problems occur.
+## Create Output [/output/create]
+### Create an S3 Output [POST]
+Integrates your S3 bucket with the bitcodin system. Once the S3 output has been created it can be used to transfer encoded assets to it.
++ Attributes(object)
+    + type: s3 (required, string) - Output-Type
+    + name (required, string) - Name of your Output Profile
+    + region (required, string) - AWS S3 Storage Region
+    + accessKey (required, string) - Your AWS S3 Access Key
+    + secretKey (required, string) - Your AWS S3 Secret Key
+    + bucket (required, string) - AWS S3 Bucketname
+    + prefix (optional, string) - Virtual Sub-Directory
+    + makePublic (optional, boolean) - If true, all transfered files can be accessed by their respective URL from anyone
+    + createSubDirectory (optional, boolean) - If true (default), creates a sub directory for your job (<jobid>_<hash>)
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+    
+            {
+                "type": "s3",
+                "name": "AWS Output Destination",
+                "region": "eu-west-1",
+                "accessKey": "awsaccesskey",
+                "secretKey": "awssecretkey",
+                "bucket": "yourbucketname",
+                "prefix": "virtual/directory/inside/your/bucket",
+                "makePublic": false
+            }
+        
++ Response 201 (application/json)
+
+        {
+            "outputId": 2,
+            "name": "AWS Output Destination",
+            "createdAt": {
+                "date": "11.03.2015 16:41:00",
+                "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "Europe/Berlin"
+                }
+            },
+            "type": "s3",
+            "prefix": "virtual/directory/inside/your/bucket",
+            "host": "https://s3-eu-west-1.amazonaws.com",
+            "bucket": "yourbucketname",
+            "makePublic": false,
+            "path": "yourbucketname/virtual/directory/inside/your/bucket"
+        }
+        
+### Create an GCS Output [POST]
+Integrates your GCS bucket with the bitcodin syste. Once the GCS output has been created it can be used to transfer encoded assets to it.
+Please note: In order to use your GCS Output, you will need Access- and SecretKeys. Therefore you have to enable the "Interoperability mode" for your google-cloud-account. Please see https://cloud.google.com/storage/docs/migrating#keys for further instructions.
++ Attributes(object)
+    + type: gcs (required, string) - Output-Type
+    + name (required, string) - Name of your Output Profile
+    + accessKey (required, string) - Your GCS Access Key ID
+    + secretKey (required, string) - Your GCS Secret Access Key
+    + bucket (required, string) - GCS Bucketname
+    + prefix (optional, string) - Virtual Sub-Directory
+    + makePublic (optional, boolean) - If true, all transfered files can be accessed by their respective URL from anyone
+    + createSubDirectory (optional, boolean) - If true (default), creates a sub directory for your job (<jobid>_<hash>)
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+    
+            { 
+                "type": "gcs",
+                "name": "GCS Output Destination",
+                "accessKey": "gcsaccesskey",
+                "secretKey": "gcssecretaccesskey",
+                "bucket": "yourbucketname",
+                "prefix": "virtual/directory/inside/your/bucket",
+                "makePublic": false
+            }
+        
++ Response 201 (application/json)
+
+        {
+            "outputId": 14,
+            "name": "GCS Output Destination",
+            "createdAt": {
+                "date": "15.07.2015 16:26:57",
+                "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "UTC"
+                }
+            },
+            "type": "gcs",
+            "prefix": "virtual/directory/inside/your/bucket",
+            "host": "",
+            "bucket": "bit-packager",
+            "makePublic": false,
+            "path": "yourbucketname/virtual/directory/inside/your/bucket"
+        }
+
+### Create an Azure Output [POST]
+Integrates your Azure blob storage with the bitcodin system. Once the Azure output has been created it can be used to transfer encoded assets to it.
++ Attributes(object)
+    + type: azure (required, string) - Output-Type
+    + name (required, string) - Name of your Output Profile
+    + accountName (required, string) - Your Azure account name
+    + accountKey (required, string) - Your Azure account key
+    + container (required, string) - Name of your azure storage container
+    + prefix (optional, string) - Virtual Sub-Directory
+    + createSubDirectory (optional, boolean) - If true (default), creates a sub directory for your job (<jobid>_<hash>)
+
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+    
+            {
+                "name": "Azure Test Output", 
+                "type": "azure",
+                "container": "yourAzureContainer", 
+                "accountName": "yourAzureAccountName", 
+                "accountKey": "yourAzureAccountKey",
+                "prefix": "your/desired/prefix/"
+            }
+
+        
++ Response 201 (application/json)
+
+            {
+              "outputId": 12776,
+              "name": "Azure Test Output",
+              "createSubDirectory": true,
+              "createdAt": {
+                "date": "02.10.2015 12:53:32",
+                "timezone": {
+                  "timezone_type": 3,
+                  "timezone": "UTC"
+                }
+              },
+              "outputUrl": "https://yourAzureAccountName.bitblobstorage.blob.core.windows.net/yourAzureContainer/",
+              "relOutputUrl": "https://yourAzureAccountName.bitblobstorage.blob.core.windows.net/yourAzureContainer/",
+              "type": "azure",
+              "prefix": "your/desired/prefix/",
+              "container": "yourAzureContainer",
+              "path": "yourAzureContainer/your/desired/prefix/"
+            }
+
+
+### Create an FTP Output [POST]
+Integrates your FTP server with the bitcodin system. Once the FTP output has been created it can be used to transfer encoded assets to it.
++ Attributes(object)
+    + type: ftp (required, string) - Output-Type
+    + name (required, string) - Name of your Output Profile
+    + host: yourftpdomainorip.com/path/to/your/file (required, string) - Your FTP domain
+    + username (required, string) - Your FTP Username
+    + password (required, string) - Your FTP Password
+    + passive (optional, boolean) - Use passive mode
+    + createSubDirectory (optional, boolean) - If true (default), creates a sub directory for your job (<jobid>_<hash>)
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+    
+            { 
+                "type": "ftp",
+                "name": "FTP Output Destination",
+                "host": "yourdomain.com/path/to/your/directory",
+                "username": "username",
+                "password": "password",
+                "passive": true
+            }
+        
++ Response 201 (application/json)
+
+        {
+            "outputId": 3,
+            "name": "FTP Output Destination",
+            "createdAt": {
+                "date": "11.03.2015 16:41:00",
+                "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "Europe/Berlin"
+                }
+            },
+            "type": "ftp",
+            "host": "yourdomain.com",
+            "passive": true,
+            "path": "path/to/your/directory"
+        }
+        
+### Create an SFTP Output [POST]
+Integrates your SFTP server with the bitcodin system. Once the SFTP output has been created it can be used to transfer encoded assets to it.
++ Attributes(object)
+    + type: sftp (required, string) - Output-Type
+    + name (required, string) - Name of your Output Profile
+    + host: yoursftpdomainorip.com/path/to/your/file (required, string) - Your SFTP domain
+    + username (required, string) - Your SFTP Username
+    + password (required, string) - Your SFTP Password
+    + passive (optional, boolean) - Use passive mode
+    + createSubDirectory (optional, boolean) - If true (default), creates a sub directory for your job (<jobid>_<hash>)
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+    
+            { 
+                "type": "ftp",
+                "name": "SFTP Output Destination",
+                "host": "yourdomain.com/path/to/your/directory",
+                "username": "username",
+                "password": "password",
+                "passive": true
+            }
+        
++ Response 201 (application/json)
+
+        {
+            "outputId": 3,
+            "name": "SFTP Output Destination",
+            "createdAt": {
+                "date": "11.03.2015 16:41:00",
+                "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "Europe/Berlin"
+                }
+            },
+            "type": "sftp",
+            "host": "yourdomain.com",
+            "passive": true,
+            "path": "path/to/your/directory"
+        }
+
+## List Outputs [/outputs/{?page}]
+### List Outputs [GET]
+List all outputs of your account structured as pages.
++ Parameters
+    + page (optional, integer) ... page number. If page number doesn't exist, last page will be returned. (10 Outputs per page)
+        + Default: 1
+        
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+        
++ Response 200 (application/json)
+        
+        {
+            "perPage": 10,
+            "totalCount": 3,
+            "status": null,
+            "outputs": [
+                {
+                    "outputId": 1,
+                    "name": "AWS Output Destination",
+                    "createdAt": {
+                        "date": "11.03.2015 16:41:00",
+                        "timezone": {
+                            "timezone_type": 3,
+                            "timezone": "Europe/Berlin"
+                        }
+                    },
+                    "type": "s3",
+                    "prefix": "virtual/directory/inside/your/bucket",
+                    "host": "https://s3-eu-west-1.amazonaws.com",
+                    "bucket": "yourbucketname",
+                    "makePublic": false,
+                    "path": "yourbucketname/virtual/directory/inside/your/bucket"
+                },
+                {
+                    "outputId": 2,
+                    "name": "GCS Output Destination",
+                    "createdAt": {
+                        "date": "11.03.2015 16:41:00",
+                        "timezone": {
+                            "timezone_type": 3,
+                            "timezone": "Europe/Berlin"
+                        }
+                    },
+                    "type": "gcs",
+                    "prefix": "virtual/directory/inside/your/bucket",
+                    "bucket": "yourbucketname",
+                    "makePublic": false,
+                    "path": "yourbucketname/virtual/directory/inside/your/bucket"
+                },
+                {
+                    "outputId": 3,
+                    "name": "FTP Output Destination",
+                    "createdAt": {
+                        "date": "11.03.2015 16:41:00",
+                        "timezone": {
+                            "timezone_type": 3,
+                            "timezone": "Europe/Berlin"
+                        }
+                    },
+                    "type": "ftp",
+                    "host": "yourdomain.com",
+                    "passive": true,
+                    "path": "path/to/your/directory"
+                }
+            ]
+        }
+
+## Output Details [/output/{id}]
+### Get Output details [GET]
+This call can be used to get detailed information about an already created output.
++ Parameters
+    + id (optional, integer) ... Output-ID
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+        
++ Response 200 (application/json)
+        
+        {
+            "outputId": 3,
+            "name": "FTP Output Destination",
+            "createdAt": {
+                "date": "11.03.2015 16:41:00",
+                "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "Europe/Berlin"
+                }
+            },
+            "type": "ftp",
+            "host": "yourdomain.com",
+            "passive": true,
+            "path": "path/to/your/directory"
+        }
+
+### Delete Output [DELETE]
+Deletes an output from the bitcodin system.
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+        
++ Response 204 (application/json)
+
+# Group Encoding Profiles
+Encoding profiles help you to simplify your encoding process by organizing your encoding configuration. They consist of the number of audio and video output qualities/renditions as well as their encoding settings (bitrate, resolution, etc.), which will be generated out of an input file. Also pre-encoding settings like video rotation, cropping and watermarking are configurable via the encoding profile. The order which pre-encoding settings will be applied on the input video is as following: first watermark config, then rotation and last cropping config. This encoding profiles can either be generated on-the-fly for specific videos, or used as generic template for multiple inputs.
+
+The **videoStreamConfigs** array contains objects with the following attributes:
+
+| Attribute Name              | Description |
+|-----------------------------|-------------|
+| defaultStreamId             | ID of the video stream which should be encoded |
+| representationId            | ID of the video stream config |
+| bitrate                     | Bitrate of the video stream. Value must be in the range from 32000 to 20000000 |
+| profile                     | Profile which should be used to encode video stream. Possible values are: baseline, main, high |
+| preset                      | Preset which should be used to encode video stream. Possible values are: standard, professional, premium |
+| height                      | Video-Width in px, must be in the range from 128 to 7680 |
+| width                       | Video-Height in px, must be in the range from 96 to 4320 |
+| rate (optional)             | Only available using standard speed. The sample rate the encoded video should have in FPS. Values must be in the range from 1 to 120 |
+| codec (optional)            | Only available using premium speed. Sets the video codec used for encoding. Possible values are: h264, hevc. Default value is h264. |
+| bFrames (optional)          | Sets the amount of B-Frames. Valid value range: 0 - 16 |
+| refFrames (optional)        | Sets the amount of Reference-Frames. Valid value range: 0 - 16 |
+| qpMin (optional)            | Sets the minimum of quantization-factor. Valid value range: 0 - 69 |
+| qpMax (optional)            | Sets the maximum of quantization-factor. Valid value range: 0 - 69 |
+| mvPredictionMode (optional) | Sets the Motion Vector Prediction Mode. Valid values: none, spatial, temporal, auto |
+| mvSearchRangeMax (optional) | Sets the maximum Motion-Vector-Search-Range. Valid value range: 16 - 24 |
+| noCabac (optional)          | Disable CABAC. Valid values: boolean |
+
+
+The **audioStreamConfigs** array contains objects with the following attributes:
+
+| Attribute Name  | Description |
+|-----------------|-------------|
+| defaultStreamId | ID of the audio stream which should be encoded |
+| representationId| ID of the audio stream config |
+| bitrate         | Bitrate of the audio stream. Values must be in the range from 8000 to 256000 |
+| rate (optional) | The sample rate the encoded audio should have in Hz. Possible values are: 0, 8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000, 64000, 88200, 96000|
+
+
+## Create Encoding Profiles [/encoding-profile/create]
+### Create an Encoding Profile [POST]
+Creates an Encoding Profile that can be used for all your encoding jobs in the bitcodin system.
++ Attributes (EncodingProfile)
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+    
+            {
+                "name": "bitcodin Encoding Profile",
+                "videoStreamConfigs": [
+                    {
+                        "defaultStreamId": 0,
+                        "bitrate": 1024000,
+                        "profile": "Main",
+                        "preset": "Standard",
+                        "codec": "h264",
+                        "height": 480,
+                        "width": 204
+                    }
+                ],
+                "audioStreamConfigs": [
+                    {
+                        "defaultStreamId": 0,
+                        "bitrate": 256000
+                    }
+                ]
+            }
+        
++ Response 201 (application/json)
+
+        {
+            "encodingProfileId": 5,
+            "createdAt": {
+                "date": "11.03.2015 16:41:00",
+                "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "Europe/Berlin"
+                }
+            },
+            "type": "private",
+            "name": "bitcodin Encoding Profile",
+            "videoStreamConfigs": [
+                {
+                    "defaultStreamId": 0,
+                    "representationId": 5678,
+                    "bitrate": 1024000,
+                    "codec": "h264",
+                    "profile": "Main",
+                    "preset": "Standard",
+                    "height": 480,
+                    "width": 204
+                }
+            ],
+            "audioStreamConfigs": [
+                {
+                    "defaultStreamId": 0,
+                    "representationId": 5678,
+                    "codec": "aac",
+                    "bitrate": 1500000,
+                    "sampleRate": 48000
+                }
+            ]
+        }
+        
+## Watermark [/encoding-profile/create]
+### Create a watermarked Encoding Profile [POST]
+Creates a watermarked Encoding Profile.
++ Attributes(EncodingProfile)
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+    
+            {
+                "name": "bitcodin Encoding Profile",
+                "videoStreamConfigs": [
+                    {
+                        "defaultStreamId": 0,
+                        "bitrate": 1024000,
+                        "profile": "Main",
+                        "preset": "Standard",
+                        "height": 480,
+                        "width": 204
+                    }
+                ],
+                "audioStreamConfigs": [
+                    {
+                        "defaultStreamId": 0,
+                        "bitrate": 256000
+                    }
+                ],
+                "watermarkConfig": 
+                    { 
+                        "top" : 10, 
+                        "right" : 100, 
+                        "image" : "http://bitdash-a.akamaihd.net/webpages/bitcodin/images/bitcodin-bitmovin-logo-small.png" 
+                    }
+            }
+        
++ Response 201 (application/json)
+
+        {
+            "encodingProfileId": 5,
+            "createdAt": {
+                "date": "11.03.2015 16:41:00",
+                "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "Europe/Berlin"
+                }
+            },
+            "type": "private",
+            "name": "bitcodin Encoding Profile",
+            "videoStreamConfigs": [
+                {
+                    "defaultStreamId": 0,
+                    "representationId": 5678,
+                    "bitrate": 1024000,
+                    "codec": "h264",
+                    "profile": "Main",
+                    "preset": "Standard",
+                    "height": 480,
+                    "width": 204
+                }
+            ],
+            "audioStreamConfigs": [
+                {
+                    "defaultStreamId": 0,
+                    "representationId": 5678,
+                    "codec": "aac",
+                    "bitrate": 1500000,
+                    "sampleRate": 48000
+                }
+            ],
+            "watermarkConfig": 
+                { 
+                    "top" : 10, 
+                    "right" : 100, 
+                    "image" : "http://bitdash-a.akamaihd.net/webpages/bitcodin/images/bitcodin-bitmovin-logo-small.png" 
+                }
+        }
+        
+## Cropping [/encoding-profile/create]
+### Create a cropped Encoding Profile [POST]
+Creates a cropped Encoding Profile.
++ Attributes(EncodingProfile)
+  
++ Request Create a cropped Encoding Profile(application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+    
+            {
+                "name": "bitcodin Encoding Profile",
+                "videoStreamConfigs": [
+                    {
+                        "defaultStreamId": 0,
+                        "bitrate": 1024000,
+                        "profile": "Main",
+                        "preset": "Standard",
+                        "height": 480,
+                        "width": 204
+                    }
+                ],
+                "audioStreamConfigs": [
+                    {
+                        "defaultStreamId": 0,
+                        "bitrate": 256000
+                    }
+                ],
+                "croppingConfig":
+                    { 
+                        "top" : 100, 
+                        "right" : 5, 
+                        "bottom" : 100, 
+                        "left" : 5  
+                    }
+            }
+        
++ Response 201 (application/json)
+
+        {
+            "encodingProfileId": 5,
+            "createdAt": {
+                "date": "11.03.2015 16:41:00",
+                "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "Europe/Berlin"
+                }
+            },
+            "type": "private",
+            "name": "bitcodin Encoding Profile",
+            "videoStreamConfigs": [
+                {
+                    "defaultStreamId": 0,
+                    "representationId": 5678,
+                    "bitrate": 1024000,
+                    "codec": "h264",
+                    "profile": "Main",
+                    "preset": "Standard",
+                    "height": 480,
+                    "width": 204
+                }
+            ],
+            "audioStreamConfigs": [
+                {
+                    "defaultStreamId": 0,
+                    "representationId": 5678,
+                    "codec": "aac",
+                    "bitrate": 1500000,
+                    "sampleRate": 48000
+                }
+            ],
+            "croppingConfig":
+                { 
+                    "top" : 100, 
+                    "right" : 5, 
+                    "bottom" : 100, 
+                    "left" : 5  
+                }
+        }
+        
+## Rotation [/encoding-profile/create]
+### Create an rotated Encoding Profile [POST]
+Creates a rotated Encoding Profile.
++ Attributes(object)
+    + name (required, string) - Name of your new Encoding Profile
+    + videoStreamConfigs (required, array[VideoStreamConfig]) - Array of VideoStreamConfig-Settings of your choice
+    + audioStreamConfigs (required, array[AudioStreamConfig]) - Array of AudioStreamConfig-Settings of your choice
+    + segmentLength: 2 (optional, number) - Only available using standard speed. Defines the length of a segment. Must be a value between 1 and 9 seconds.
+    + rotation: 0 (optional, number) - Rotation of the video in degrees. A positive value will rotate the video clockwise and a negative one counter clockwise.
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+    
+            {
+                "name": "bitcodin Encoding Profile",
+                "videoStreamConfigs": [
+                    {
+                        "defaultStreamId": 0,
+                        "bitrate": 1024000,
+                        "profile": "Main",
+                        "preset": "Standard",
+                        "height": 480,
+                        "width": 204
+                    }
+                ],
+                "audioStreamConfigs": [
+                    {
+                        "defaultStreamId": 0,
+                        "bitrate": 256000
+                    }
+                ],
+                "rotation" : 45
+            }
+        
++ Response 201 (application/json)
+
+        {
+            "encodingProfileId": 5,
+            "createdAt": {
+                "date": "11.03.2015 16:41:00",
+                "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "Europe/Berlin"
+                }
+            },
+            "type": "private",
+            "name": "bitcodin Encoding Profile",
+            "videoStreamConfigs": [
+                {
+                    "defaultStreamId": 0,
+                    "representationId": 5678,
+                    "bitrate": 1024000,
+                    "codec": "h264",
+                    "profile": "Main",
+                    "preset": "Standard",
+                    "height": 480,
+                    "width": 204
+                }
+            ],
+            "audioStreamConfigs": [
+                {
+                    "defaultStreamId": 0,
+                    "representationId": 5678,
+                    "codec": "aac",
+                    "bitrate": 1500000,
+                    "sampleRate": 48000
+                }
+            ],
+            "rotation" : 45
+        }
+        
+## List Encoding Profiles [/encoding-profiles/{page}]
+### List  Encoding Profiles [GET]
+List all Encoding Profiles of your account structured as pages.
++ Parameters
+    + page (optional, integer) ... page number. If page number doesn't exist, last page will be returned. (10 Encoding-Profiles per page)
+        + Default: 1
+        
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
++ Response 200 (application/json)
+
+        {
+            "perPage": 10,
+            "totalCount": 1,
+            "profiles": [
+                {
+                    "encodingProfileId": 5,
+                    "createdAt": {
+                        "date": "11.03.2015 16:41:00",
+                        "timezone": {
+                            "timezone_type": 3,
+                            "timezone": "Europe/Berlin"
+                        }
+                    },
+                    "type": "private",
+                    "name": "bitcodin Encoding Profile",
+                    "videoStreamConfigs": [
+                        {
+                            "defaultStreamId": 0,
+                            "representationId": 5678,
+                            "bitrate": 1024000,
+                            "codec": "h264",
+                            "profile": "Main",
+                            "preset": "Standard",
+                            "height": 480,
+                            "width": 204
+                        }
+                    ],
+                    "audioStreamConfigs": [
+                        {
+                            "defaultStreamId": 0,
+                            "representationId": 5678,
+                            "codec": "aac",
+                            "bitrate": 1500000,
+                            "sampleRate": 48000
+                        }
+                    ],
+                    "rotation" : 0
+                }
+            ]
+        }
+
+## Get Encoding Profile [/encoding-profile/{id}]
+### Get Encoding Profile Details[GET]
+This call can be used to get detailed information about an already created Encoding Profile.
++ Parameters
+    + id (required, integer) ... Encoding Profile ID
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
++ Response 200 (application/json)
+
+        {
+            "encodingProfileId": 1,
+            "createdAt": "2014-09-16 08:30:12",
+            "type": "private",
+            "name": "Default Release Settings",
+            "rotation" : 0,
+            "videoStreamConfigs": [
+                {
+                    "defaultStreamId":0,
+                    "representationId": 5678,
+                    "codec": "h264",
+                    "profile": "Main",
+                    "preset": "Standard",
+                    "height":1080,
+                    "width":1920,
+                    "bitrate": 6000000
+                },
+                {
+                    "defaultStreamId":0,
+                    "representationId": 5678,
+                    "codec": "h264",
+                    "profile": "Main",
+                    "preset": "Standard",
+                    "height":720,
+                    "width":1280,
+                    "bitrate": 3500000
+                },
+                {
+                    "defaultStreamId":0,
+                    "representationId": 5678,
+                    "codec": "h264",
+                    "profile": "Main",
+                    "preset": "Standard",
+                    "height":480,
+                    "width":853,
+                    "bitrate": 2500000
+                },
+                {
+                    "defaultStreamId":0,
+                    "representationId": 5678,
+                    "codec": "h264",
+                    "profile": "Main",
+                    "preset": "Standard",
+                    "height":360,
+                    "width":640,
+                    "bitrate": 1500000
+                }
+            ],
+            "audioStreamConfigs": [
+                {
+                    "defaultStreamId":0,
+                    "representationId": 5678,
+                    "codec": "aac",
+                    "bitrate": 1500000,
+                    "sampleRate": 48000
+                },
+                {
+                    "defaultStreamId":1,
+                    "representationId": 5678,
+                    "codec": "aac",
+                    "bitrate": 1500000,
+                    "sampleRate": 48000
+                }
+            ]
+        }
+
+### Delete Encoding Profile [DELETE]
+Deletes an Encoding Profile from the bitcodin system.
++ Parameters
+    + id (required, integer) ... Encoding-Profile-ID
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+        
++ Response 204 (application/json)
+
+# Group Jobs
+Encoding-jobs are the central element of bitcodin, they consist of an input which is encoded according to an encoding profile into MPEG-DASH and/or HLS output. 
+
+Using the concepts of input and encoding profile, the complexity of video encoding gets reduced significantly, which helps our users to save time and money. 
+
+The bitcodin API provides a comprehensive set of possibilities around the creation of jobs, which makes it easy to integrate bitcodin into existing media workflows, web portal, apps, asset management systems, etc. 
+
+## Job [/job/create]
+### Create a Job [POST]
+Creates an encoding job in the encoding system, which encodes an already created input based on the defined encoding profile to HLS and/or MPEG-DASH. It is also possible to define a DRM configuration for Widevine, PlayReady and both combined. Encryption of your HLS content is also possible.
+
+The attribute "speed" in the request can take one of the two possible values "standard" and "premium" (latter is default if this attribute was not specified explicitly). The premium speed is faster than the standard speed and is available for no additional costs at present. Please note that some features are not available when using premium speed yet. 
+
+```HTTP
+{
+    ...
+    "speed": "standard|premium",
+    ...
+}
+```
+
+If you already created an output destination (see Outputs), you can add its ID to your createJob-Call to automatically transfer your encoded output to the given destination.
+
+```HTTP
+{
+    ...
+    "outputId": 1234,
+    ...
+}
+```
+
+If you have interlaced inputs you can use the de-interlace-option to remove it.
+
+```HTTP
+{
+    ...
+    "deinterlace": true
+    ...
+}
+```
+
+It is also possible to protect your DASH content with DRM and to encrypt your HLS content. For more infos have a look at the DRM sections below.
+
+If you are having Inputfiles with multiple mono audiostreams, that need to be merged into one stereo or 5.1 audio stream, you can use the so called MergeAudioChannelConfigs (standard encodings only).
+This allows you to choose which audio input streams will be merged together to form a new stream. Using MergeAudioChannelConfigs means that the information about input audio streams will be overwritten and replaced with the resulting streams of the merged audio streams.
+Here is an example for merging mono stream 1 and 2 to one stereo audio stream and mono stream 3 and 4 to another stereo input stream:
+
+```HTTP
+{
+    ...
+    "mergeAudioChannelConfigs": [{"audioChannels": [1,2]}, {"audioChannels": [3,4]}],
+    ...
+}
+```
+
+
++ Attributes(object)
+    + inputId (required, number) - Input-ID to choose encode input
+    + encodingProfileId (required, number) - EncodingProfile-ID
+    + manifestTypes: mpd, m3u8 (required, array[string]) - Manifest-Filetypes to create
+    + outputId (optional, number) - Output-ID to transfer your encoded output to
+    + speed: standard, premium (optional, string) - Speed of the encoding
+        + Default: `premium`
+    + audioMetaData (optional, AudioMetaData) - Meta data of the audio streams (Only available when using `standard` as speed setting)
+    + extractClosedCaptions (optional, boolean) - Extract closed captions from the input file
+        + Default: false
+    + deinterlace (optional, boolean) - Create de-interlaced output
+        + Default: false
+    + mergeAudioChannelConfigs (optional, array[]) - Merge multiple mono audio input streams to stereo or 5.1 audio streams (Only available when using `standard` as speed setting)
+        + audioChannels: Array of mono audio input streams
+    + duration (optional, number) - Defines how many seconds from the input will be encoded.
+    + startTime (optional, number) - Defines the offset in seconds from which the encoding should start, beginning at 0.
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+
+            { 
+                "inputId": 1,
+                "encodingProfileId": 1,
+                "manifestTypes":["mpd","m3u8"],
+                "speed": "standard",
+                "audioMetaData": [
+                    {
+                        "defaultStreamId": 0,
+                        "language": "en",
+                        "label": "English"
+                    }
+                ],
+                "extractClosedCaptions": true
+            }
+            
++ Response 201 (application/json)
+
+        {
+          "jobId": 1,
+          "status": "Enqueued",
+          "frameRate": 0,
+          "segmentsSplitted": 0,
+          "totalFramesWritten": 0,
+          "bytesWritten": 0,
+          "useStrictSegmentLength": true,
+          "progress": 0,
+          "jobFolder": "123456_abcdefghijklmnopqrstuvwxyz012345",
+          "input": {
+            "inputId": 1,
+            "filename": "video.mkv",
+            "createdAt": {
+              "date": "22.06.2015 23:43:30",
+              "timezone": {
+                "timezone_type": 3,
+                "timezone": "UTC"
+              }
+            },
+            "updatedAt": {
+              "date": "22.06.2015 23:43:30",
+              "timezone": {
+                "timezone_type": 3,
+                "timezone": "UTC"
+              }
+            },
+            "thumbnailUrl": "http:\\/\\path\\/to\\/thumbnail.png",
+            "inputType": "url",
+            "url": "http:\\/\\/path\\/to\\/video.mkv",
+            "basicAuthUser": "",
+            "basicAuthPassword": "",
+            "mediaConfigurations": [
+                {}
+            ]
+          },
+          "encodingProfiles": [
+                {}
+          ],
+          "statusDescription": "",
+          "createdAt": {
+            "date": "29.07.2015 15:09:34",
+            "timezone": {
+              "timezone_type": 3,
+              "timezone": "UTC"
+            }
+          },
+          "duration": 0,
+          "startTime": 0,
+          "encodedDuration": 0,
+          "enqueueDuration": 0,
+          "realtimeFactor": 0,
+          "inputDuration": 0,
+          "enqueuedAt": {
+            "date": "29.07.2015 15:09:34",
+            "timezone": {
+              "timezone_type": 3,
+              "timezone": "UTC"
+            }
+          },
+          "manifestUrls": {
+            "mpdUrl": "http:\\/\\/path\\/to\\/mpd_file.mpd",
+            "m3u8Url": "http:\\/\\/path\\/to\\/m3u8_file.m3u8"
+          }
+        }
+
+
+## DRM Widevine [/job/create]
+### Create a Widevine Job [POST]
+#### Widevine
+```HTTP
+{
+    ...
+    "speed": "standard",
+    "drmConfig": {
+        "system": "widevine",
+        "provider": "widevine_test",
+        "signingKey": "1ae8ccd0e7985cc0b6203a55855a1034afc252980e970ca90e5202689f947ab9",
+        "signingIV": "d58ce954203b7c9a9a9d467f59839249",
+        "requestUrl": "http://license.uat.widevine.com/cenc/getcontentkey",
+        "contentId": "746573745f69645f4639465043304e4f",
+        "method": "mpeg_cenc"
+    }
+}
+```
+
+The parameters of the Widevine configuration have the following meaning:
+
+| Attribute Name  | Description |
+|-----------------|-------------|
+| system          | We support widevine, playready, widevine_playready and clearkey |
+| provider        | Also known as portal, owner or organization. You will get this value from Widevine. |
+| signingKey      | Replace this with the signing key you received from Widevine. |
+| signingIV       | Replace this with the signing IV you received from Widevine. |
+| requestUrl      | This is your private Widevine license server URL.  |
+| contentId       | This ID is used to link your content to the generated keys in the Widevine key managment system. This is up to you or your licensing provider. You can choose any value you like. |
+| method          | Currently we only support MPEG-CENC. |
+
+
++ Attributes(object)
+    + inputId (required, number) - Input-ID to choose encode input
+    + encodingProfileId (required, number) - EncodingProfile-ID
+    + manifestTypes: mpd, m3u8 (required, array[string]) - Manifest-Filetypes to create
+    + speed: standard, premium (optional, string) - Speed of the encoding
+        + Default: `premium`
+    + drmConfig (optional, object) - DRM related settings
+        + system (required, string) - We support widevine, playready, widevine_playready and clearkey
+        + provider (required, string) - Also known as portal, owner or organization. You will get this value from Widevine.
+        + signingKey (optional, string) - Replace this with the signing key you received from Widevine.
+        + signingIV (required, string) - Replace this with the signing IV you received from Widevine.
+        + requestUrl (required, string) - This is your private Widevine license server URL.
+        + contentId (required, string) - This ID is used to link your content to the generated keys in the Widevine key managment system. This is up to you or your licensing provider. You can choose any value you like.
+        + method (required, string) - Currently we only support MPEG-CENC ('mpeg_cenc'). 
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+
+            { 
+                "inputId": 1,
+                "encodingProfileId": 1,
+                "manifestTypes":["mpd","m3u8"],
+                "speed": "standard"
+            }
+            
++ Response 201 (application/json)
+
+        {
+          "jobId": 1,
+          "status": "Enqueued",
+          "frameRate": 0,
+          "segmentsSplitted": 0,
+          "totalFramesWritten": 0,
+          "bytesWritten": 0,
+          "useStrictSegmentLength": true,
+          "progress": 0,
+          "jobFolder": "123456_abcdefghijklmnopqrstuvwxyz012345",
+          "input": {
+            "inputId": 1,
+            "filename": "video.mkv",
+            "createdAt": {
+              "date": "22.06.2015 23:43:30",
+              "timezone": {
+                "timezone_type": 3,
+                "timezone": "UTC"
+              }
+            },
+            "updatedAt": {
+              "date": "22.06.2015 23:43:30",
+              "timezone": {
+                "timezone_type": 3,
+                "timezone": "UTC"
+              }
+            },
+            "thumbnailUrl": "http:\\/\\path\\/to\\/thumbnail.png",
+            "inputType": "url",
+            "url": "http:\\/\\/path\\/to\\/video.mkv",
+            "basicAuthUser": "",
+            "basicAuthPassword": "",
+            "mediaConfigurations": [
+                /*
+                *   mediaConfigs
+                */
+            ]
+          },
+          "encodingProfiles": [
+                /*
+                * encodingProfiles
+                */
+              ]
+            }
+          ],
+          "statusDescription": "",
+          "createdAt": {
+            "date": "29.07.2015 15:09:34",
+            "timezone": {
+              "timezone_type": 3,
+              "timezone": "UTC"
+            }
+          },
+          "duration": 0,
+          "encodedDuration": 0,
+          "enqueueDuration": 0,
+          "realtimeFactor": 0,
+          "inputDuration": 0,
+          "enqueuedAt": {
+            "date": "29.07.2015 15:09:34",
+            "timezone": {
+              "timezone_type": 3,
+              "timezone": "UTC"
+            }
+          },
+          "manifestUrls": {
+            "mpdUrl": "http:\\/\\/path\\/to\\/mpd_file.mpd",
+            "m3u8Url": "http:\\/\\/path\\/to\\/m3u8_file.m3u8"
+          }
+        }
+            
+            
+## DRM PlayReady [/job/create]
+### Create a PlayReady Job [POST]
+#### PlayReady
+```HTTP
+{
+    ...
+    "speed": "standard",
+    "drmConfig": {
+        "system": "playready", 
+        "keySeed": "XVBovsmzhP9gRIZxWfFta3VVRPzVEWmJsazEJ46I", 
+        "laUrl": "http://playready.directtaps.net/pr/svc/rightsmanager.asmx", 
+        "method": "mpeg_cenc", 
+        "kid": "746573745f69645f4639465043304e4f"
+    }
+}
+```
+
+The parameters of the PlayReady configuration have the following meaning:
+
+| Attribute Name  | Description |
+|-----------------|-------------|
+| system          | We support widevine, playready, widevine_playready and clearkey |
+| keySeed         | Key seed (base64) to generate key (keySeed or key is required) |
+| key             | Encryption key (keySeed or key is required) |
+| laUrl           | Url of the license server |
+| method          | Encryption method |
+| kid             | Key identifier in hex format |
+
+
+
++ Attributes(object)
+    + inputId (required, number) - Input-ID to choose encode input
+    + encodingProfileId (required, number) - EncodingProfile-ID
+    + manifestTypes: mpd, m3u8 (required, array[string]) - Manifest-Filetypes to create
+    + speed: standard, premium (optional, string) - Speed of the encoding
+        + Default: `premium`
+    + drmConfig (optional, object) - DRM related settings
+        + system (required, string) - We support widevine, playready, widevine_playready and clearkey
+        + keySeed (required, string) - Key seed to generate key
+        + laUrl (optional, string) - Url of the license server
+        + method (required, string) - Encryption method
+        + kid (required, string) - Key identifier
+
+        
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+
+            { 
+                "inputId": 1,
+                "encodingProfileId": 1,
+                "manifestTypes":["mpd","m3u8"],
+                "speed": "standard",
+                "drmConfig": {
+                    "system": "playready", 
+                    "keySeed": "XVBovsmzhP9gRIZxWfFta3VVRPzVEWmJsazEJ46I", 
+                    "laUrl": "http://playready.directtaps.net/pr/svc/rightsmanager.asmx", 
+                    "method": "mpeg_cenc", 
+                    "kid": "746573745f69645f4639465043304e4f"
+                }
+            }
+            
++ Response 201 (application/json)
+
+            {
+              "jobId": 1,
+              "status": "Enqueued",
+              "frameRate": 0,
+              "segmentsSplitted": 0,
+              "totalFramesWritten": 0,
+              "bytesWritten": 0,
+              "useStrictSegmentLength": true,
+              "progress": 0,
+              "jobFolder": "123456_abcdefghijklmnopqrstuvwxyz012345",
+              "input": {
+                "inputId": 1,
+                "filename": "video.mkv",
+                "createdAt": {
+                  "date": "22.06.2015 23:43:30",
+                  "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "UTC"
+                  }
+                },
+                "updatedAt": {
+                  "date": "22.06.2015 23:43:30",
+                  "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "UTC"
+                  }
+                },
+                "thumbnailUrl": "http:\\/\\path\\/to\\/thumbnail.png",
+                "inputType": "url",
+                "url": "http:\\/\\/path\\/to\\/video.mkv",
+                "basicAuthUser": "",
+                "basicAuthPassword": "",
+                "mediaConfigurations": [
+                    /*
+                    *   mediaConfigs
+                    */
+                ]
+              },
+              "encodingProfiles": [
+                    /*
+                    * encodingProfiles
+                    */
+                  ]
+                }
+              ],
+              "statusDescription": "",
+              "createdAt": {
+                "date": "29.07.2015 15:09:34",
+                "timezone": {
+                  "timezone_type": 3,
+                  "timezone": "UTC"
+                }
+              },
+              "duration": 0,
+              "encodedDuration": 0,
+              "enqueueDuration": 0,
+              "realtimeFactor": 0,
+              "inputDuration": 0,
+              "enqueuedAt": {
+                "date": "29.07.2015 15:09:34",
+                "timezone": {
+                  "timezone_type": 3,
+                  "timezone": "UTC"
+                }
+              },
+              "manifestUrls": {
+                "mpdUrl": "http:\\/\\/path\\/to\\/mpd_file.mpd",
+                "m3u8Url": "http:\\/\\/path\\/to\\/m3u8_file.m3u8"
+              }
+            }
+            
+## DRM PlayReady and Widevine combined [/job/create]
+### Create a combined DRM Job [POST]
+#### PlayReady
+```HTTP
+{
+    ...
+    "speed": "standard",
+    "drmConfig": {
+        "system": "widevine_playready",
+        "kid": "eb676abbcb345e96bbcf616630f1a3da", 
+        "key": "100b6c20940f779a4589152b57d2dacb"
+        "laUrl": "http://playready.directtaps.net/pr/svc/rightsmanager.asmx?PlayRight=1&ContentKey=EAtsIJQPd5pFiRUrV9Layw==",
+        "method": "mpeg_cenc", 
+        "pssh": "#CAESEOtnarvLNF6Wu89hZjDxo9oaDXdpZGV2aW5lX3Rlc3QiEGZrajNsamFTZGZhbGtyM2oqAkhEMgA=", 
+      
+    }
+}
+```
+
+The parameters of the Combined PlayReady and Widevine configuration have the following meaning:
+
+| Attribute Name  | Description |
+|-----------------|-------------|
+| system          | We support widevine, playready, widevine_playready and clearkey |
+| kid             | This is the common unique identifier for your content key (hex format)  |
+| key             | This is the common content encryption key |
+| laUrl           | This is the URL to the PlayReady license server |
+| method          | Enryption method |
+| pssh            | This is the value for the Widevine pssh box.  |
+
+
+
++ Attributes(object)
+    + inputId (required, number) - Input-ID to choose encode input
+    + encodingProfileId (required, number) - EncodingProfile-ID
+    + manifestTypes: mpd, m3u8 (required, array[string]) - Manifest-Filetypes to create
+    + speed: standard, premium (optional, string) - Speed of the encoding
+        + Default: `premium`
+    + drmConfig (optional, object) - DRM related settings
+        + system (required, string) - We support widevine, playready, widevine_playready and clearkey
+        + kid (required, string) - Key identifier (hex)
+        + key (required, string) - Encryption key
+        + laUrl (optional, string) - Url of the license server 
+        + method (required, string) - Encryption method 
+        + pssh (optional, string) - Value of pssh field which will be stored in the mp4 container. 
+
+        
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+
+            { 
+                "inputId": 1,
+                "encodingProfileId": 1,
+                "manifestTypes":["mpd","m3u8"],
+                "speed": "standard",
+                "drmConfig": {
+                    "system": "widevine_playready",
+                    "kid": "eb676abbcb345e96bbcf616630f1a3da", 
+                    "key": "100b6c20940f779a4589152b57d2dacb"
+                    "laUrl": "http://playready.directtaps.net/pr/svc/rightsmanager.asmx?PlayRight=1&ContentKey=EAtsIJQPd5pFiRUrV9Layw==",
+                    "method": "mpeg_cenc", 
+                    "pssh": "#CAESEOtnarvLNF6Wu89hZjDxo9oaDXdpZGV2aW5lX3Rlc3QiEGZrajNsamFTZGZhbGtyM2oqAkhEMgA=", 
+                }
+            }
+            
++ Response 201 (application/json)
+
+            {
+              "jobId": 1,
+              "status": "Enqueued",
+              "frameRate": 0,
+              "segmentsSplitted": 0,
+              "totalFramesWritten": 0,
+              "bytesWritten": 0,
+              "useStrictSegmentLength": true,
+              "progress": 0,
+              "jobFolder": "123456_abcdefghijklmnopqrstuvwxyz012345",
+              "input": {
+                "inputId": 1,
+                "filename": "video.mkv",
+                "createdAt": {
+                  "date": "22.06.2015 23:43:30",
+                  "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "UTC"
+                  }
+                },
+                "updatedAt": {
+                  "date": "22.06.2015 23:43:30",
+                  "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "UTC"
+                  }
+                },
+                "thumbnailUrl": "http:\\/\\path\\/to\\/thumbnail.png",
+                "inputType": "url",
+                "url": "http:\\/\\/path\\/to\\/video.mkv",
+                "basicAuthUser": "",
+                "basicAuthPassword": "",
+                "mediaConfigurations": [
+                    /*
+                    *   mediaConfigs
+                    */
+                ]
+              },
+              "encodingProfiles": [
+                    /*
+                    * encodingProfiles
+                    */
+                  ]
+                }
+              ],
+              "statusDescription": "",
+              "createdAt": {
+                "date": "29.07.2015 15:09:34",
+                "timezone": {
+                  "timezone_type": 3,
+                  "timezone": "UTC"
+                }
+              },
+              "duration": 0,
+              "encodedDuration": 0,
+              "enqueueDuration": 0,
+              "realtimeFactor": 0,
+              "inputDuration": 0,
+              "enqueuedAt": {
+                "date": "29.07.2015 15:09:34",
+                "timezone": {
+                  "timezone_type": 3,
+                  "timezone": "UTC"
+                }
+              },
+              "manifestUrls": {
+                "mpdUrl": "http:\\/\\/path\\/to\\/mpd_file.mpd",
+                "m3u8Url": "http:\\/\\/path\\/to\\/m3u8_file.m3u8"
+              }
+            }    
+            
+## MPEG-DASH ClearKey encryption [/job/create]
+### Create a MPEG-DASH ClearKey encryption job [POST]
+#### ClearKey encryption
+```HTTP
+{
+    ...
+    "speed": "premium",
+    "drmConfig": {
+        "system": "clearkey",
+        "kid": "eb676abbcb345e96bbcf616630f1a3da", 
+        "key": "100b6c20940f779a4589152b57d2dacb"
+        "method": "mpeg_cenc"
+    }
+}
+```
+
+The parameters of the ClearKey encryption configuration have the following meaning:
+
+| Attribute Name  | Description |
+|-----------------|-------------|
+| system          | We support widevine, playready, widevine_playready and clearkey |
+| kid             | This is the unique identifier for your content key (hex format)  |
+| key             | This is the content encryption key (hex format) |
+| method          | Enryption method |
+
++ Attributes(object)
+    + speed: standard, premium (optional, string) - For ClearKey encryption only premium is permitted
+        + Default: `premium`
+    + drmConfig (optional, object) - DRM related settings
+        + system (required, string) - We support widevine, playready, widevine_playready and clearkey
+        + kid (required, string) - Key identifier (hex)
+        + key (required, string) - Encryption key
+        + method (required, string) - Encryption method 
+
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+
+            { 
+                "inputId": 1,
+                "encodingProfileId": 1,
+                "manifestTypes":["mpd","m3u8"],
+                "speed": "standard",
+                "drmConfig": {
+                    "system": "clearkey",
+                    "kid": "eb676abbcb345e96bbcf616630f1a3da", 
+                    "key": "100b6c20940f779a4589152b57d2dacb",
+                    "method": "mpeg_cenc"
+                }
+            }
+            
++ Response 201 (application/json)
+
+            {
+              "jobId": 1,
+              "status": "Enqueued",
+              "frameRate": 0,
+              "segmentsSplitted": 0,
+              "totalFramesWritten": 0,
+              "bytesWritten": 0,
+              "useStrictSegmentLength": true,
+              "progress": 0,
+              "jobFolder": "123456_abcdefghijklmnopqrstuvwxyz012345",
+              "input": {
+                "inputId": 1,
+                "filename": "video.mkv",
+                "createdAt": {
+                  "date": "22.06.2015 23:43:30",
+                  "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "UTC"
+                  }
+                },
+                "updatedAt": {
+                  "date": "22.06.2015 23:43:30",
+                  "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "UTC"
+                  }
+                },
+                "thumbnailUrl": "http:\\/\\path\\/to\\/thumbnail.png",
+                "inputType": "url",
+                "url": "http:\\/\\/path\\/to\\/video.mkv",
+                "basicAuthUser": "",
+                "basicAuthPassword": "",
+                "mediaConfigurations": [
+                    /*
+                    *   mediaConfigs
+                    */
+                ]
+              },
+              "encodingProfiles": [
+                    /*
+                    * encodingProfiles
+                    */
+                  ]
+                }
+              ],
+              "statusDescription": "",
+              "createdAt": {
+                "date": "29.07.2015 15:09:34",
+                "timezone": {
+                  "timezone_type": 3,
+                  "timezone": "UTC"
+                }
+              },
+              "duration": 0,
+              "encodedDuration": 0,
+              "enqueueDuration": 0,
+              "realtimeFactor": 0,
+              "inputDuration": 0,
+              "enqueuedAt": {
+                "date": "29.07.2015 15:09:34",
+                "timezone": {
+                  "timezone_type": 3,
+                  "timezone": "UTC"
+                }
+              },
+              "manifestUrls": {
+                "mpdUrl": "http:\\/\\/path\\/to\\/mpd_file.mpd",
+                "m3u8Url": "http:\\/\\/path\\/to\\/m3u8_file.m3u8"
+              }
+            }    
+
+## DRM HLS encryption [/job/create]
+### Create a HLS encryption Job [POST]
+#### HLS encryption
+```HTTP
+{
+    ...
+    "speed": "standard",
+    "hlsEncryptionConfig": {
+        "method": "SAMPLE-AES", 
+        "key": "cab5b529ae28d5cc5e3e7bc3fd4a544d", 
+        "iv": "08eecef4b026deec395234d94218273d",
+        "uri": "https://your.license.server/getlicense"
+    }
+}
+```
+
+The parameters of the HLS encryption configuration have the following meaning:
+
+| Attribute Name  | Description |
+|-----------------|-------------|
+| method          | We support SAMPLE-AES and AES-128 encryption |
+| key             | Encryption key (16 byte; 32 hexadecimal characters) |
+| iv              | Initialization vector, optional (16 byte; 32 hexadecimal characters) |
+| uri             | URI to the license server providing the license for playout. Optional. If not provided a keyfile will be generated in linked in the manifest. |
+
++ Attributes(object)
+    + inputId (required, number) - Input-ID to choose encode input
+    + encodingProfileId (required, number) - EncodingProfile-ID
+    + manifestTypes: mpd, m3u8 (required, array[string]) - Manifest-Filetypes to create
+    + speed: standard, premium (optional, string) - Speed of the encoding
+        + Default: `premium`
+    + hlsEncryptionConfig (optional, object) - HLS encryption settings
+        + method (required, string) - We support SAMPLE-AES and AES-128
+        + key (required, string) - 16 byte Encryption key
+        + iv (optional, string) - 16 byte Initialization vector
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+
+            { 
+                "inputId": 1,
+                "encodingProfileId": 1,
+                "manifestTypes":["mpd","m3u8"],
+                "speed": "standard",
+                "hlsEncryptionConfig": {
+                    "method": "AES-128", 
+                    "key": "cab5b529ae28d5cc5e3e7bc3fd4a544d", 
+                    "iv": "08eecef4b026deec395234d94218273d"
+                }
+            }
+            
++ Response 201 (application/json)
+
+            {
+              "jobId": 1,
+              "status": "Enqueued",
+              "frameRate": 0,
+              "segmentsSplitted": 0,
+              "totalFramesWritten": 0,
+              "bytesWritten": 0,
+              "useStrictSegmentLength": true,
+              "progress": 0,
+              "jobFolder": "123456_abcdefghijklmnopqrstuvwxyz012345",
+              "input": {
+                "inputId": 1,
+                "filename": "video.mkv",
+                "createdAt": {
+                  "date": "22.06.2015 23:43:30",
+                  "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "UTC"
+                  }
+                },
+                "updatedAt": {
+                  "date": "22.06.2015 23:43:30",
+                  "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "UTC"
+                  }
+                },
+                "thumbnailUrl": "http:\\/\\path\\/to\\/thumbnail.png",
+                "inputType": "url",
+                "url": "http:\\/\\/path\\/to\\/video.mkv",
+                "basicAuthUser": "",
+                "basicAuthPassword": "",
+                "mediaConfigurations": [
+                    /*
+                    *   mediaConfigs
+                    */
+                ]
+              },
+              "encodingProfiles": [
+                    /*
+                    * encodingProfiles
+                    */
+                  ]
+                }
+              ],
+              "statusDescription": "",
+              "createdAt": {
+                "date": "29.07.2015 15:09:34",
+                "timezone": {
+                  "timezone_type": 3,
+                  "timezone": "UTC"
+                }
+              },
+              "duration": 0,
+              "encodedDuration": 0,
+              "enqueueDuration": 0,
+              "realtimeFactor": 0,
+              "inputDuration": 0,
+              "enqueuedAt": {
+                "date": "29.07.2015 15:09:34",
+                "timezone": {
+                  "timezone_type": 3,
+                  "timezone": "UTC"
+                }
+              },
+              "manifestUrls": {
+                "mpdUrl": "http:\\/\\/path\\/to\\/mpd_file.mpd",
+                "m3u8Url": "http:\\/\\/path\\/to\\/m3u8_file.m3u8"
+              }
+            }
+            
+## List Jobs [/jobs/{page}/{status}]
+### List all jobs [GET]
+List all jobs of your account structured as pages.
++ Parameters
+    + page (optional, integer) - page number. If page number doesn't exist, last page will be returned. (10 Jobs per page)
+        + Default: 1
+    + status (optional, string) - status. Available values: all | finished | enqueued | inprogress | error  (10 Jobs per page)
+        + Default: all
+    
++ Request (application/json)
+
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+    
++ Response 200 (application/json)
+    
+        {
+            "perPage": 10,
+            "totalCount": 3,
+            "status": null,
+            "jobs": [
+                {
+                    "jobId": 3,
+                    "status": "Finished",
+                    "frameRate": 24,
+                    "segmentsSplitted": 78,
+                    "totalFramesWritten": 10807,
+                    "bytesWritten": 326163921,
+                    "jobFolder": "123456_abcdefghijklmnopqrstuvwxyz012345",
+                    "input": {
+                        "ref": "see Inputs Section"
+                    },
+                    "encodingProfiles": [
+                        { "ref": "see EncodingProfiles Section" }
+                    ],
+                    "statusDescription": "",
+                    "createdAt": {
+                        "date": "11.03.2015 16:41:00",
+                        "timezone": {
+                            "timezone_type": 3,
+                            "timezone": "Europe/Berlin"
+                        }
+                    },
+                    "duration": 125,
+                    "encodedDuration": 450,
+                    "enqueueDuration": 67,
+                    "realtimeFactor": 3.6,
+                    "enqueuedAt": {
+                        "date": "11.03.2015 16:41:00",
+                        "timezone": {
+                            "timezone_type": 3,
+                            "timezone": "Europe/Berlin"
+                        }
+                    },
+                    "startedAt": {
+                        "date": "11.03.2015 16:41:00",
+                        "timezone": {
+                            "timezone_type": 3,
+                            "timezone": "Europe/Berlin"
+                        }
+                    },
+                    "finishedAt": {
+                        "date": "11.03.2015 16:41:00",
+                        "timezone": {
+                            "timezone_type": 3,
+                            "timezone": "Europe/Berlin"
+                        }
+                    },
+                    "manifestUrls": {
+                        "mpdUrl": "URL_TO_MPD",
+                        "m3u8Url": "URL_TO_HLS_PLAYLIST"
+                    }
+                }
+            ]
+        }
+
+## Job Details [/job/{id}]
+### Get Job details [GET]
+This call can be used to get detailed information about an already created job.
++ Parameters
+    + id (required, integer) - Job-ID
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+        
++ Response 200 (application/json)
+        
+        {
+            "jobId": 3,
+            "status": "Finished",
+            "frameRate": 24,
+            "segmentsSplitted": 78,
+            "totalFramesWritten": 10807,
+            "bytesWritten": 326163921,
+            "jobFolder": "123456_abcdefghijklmnopqrstuvwxyz012345",
+            "input": {
+                "ref": "see Inputs Section"
+            },
+            "encodingProfiles": [
+                { "ref": "see EncodingProfiles Section" }
+            ],
+            "statusDescription": "",
+            "createdAt": {
+                "date": "11.03.2015 16:41:00",
+                "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "Europe/Berlin"
+                }
+            },
+            "warnings": [
+                "Decoder/Encoder warnings"
+            ],
+            "duration": 125,
+            "encodedDuration": 450,
+            "enqueueDuration": 67,
+            "realtimeFactor": 3.6,
+            "enqueuedAt": {
+                "date": "11.03.2015 16:41:00",
+                "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "Europe/Berlin"
+                }
+            },
+            "startedAt": {
+                "date": "11.03.2015 16:41:00",
+                "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "Europe/Berlin"
+                }
+            },
+            "finishedAt": {
+                "date": "11.03.2015 16:41:00",
+                "timezone": {
+                    "timezone_type": 3,
+                    "timezone": "Europe/Berlin"
+                }
+            },
+            "manifestUrls": {
+                "mpdUrl": "URL_TO_MPD",
+                "m3u8Url": "URL_TO_HLS_PLAYLIST"
+            }
+        }
+
+### Delete Job [DELETE]
+Deletes a job from the bitcodin system.
++ Parameters
+    + id (required, integer) ... Job-ID
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+        
++ Response 204 (application/json)
+
+## Job Status [/job/{id}/status]
+### Get current job status [GET]
+Get the status of an already created job, which contains information about how many frames have already been encoded or how many MB have been written, etc.
+
+The response will contain a attribute called "status" amongst various other attributes. It can take the following values with it:
+
+| Value           | Description |
+|-----------------|-------------|
+| Created         | The job has been successfully created and will be enqueued soon. |
+| Enqueued        | The job has been enqueued and waits for to be processed. |
+| In Progress     | The job is being processed at the moment - encoding runs. |
+| Finished        | The encoding process has finished successfully. |
+| Error           | Some error occured while processing the job. |
+
+
++ Parameters
+    + id (required, integer) - Job-ID
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+        
++ Response 200 (application/json)
+        
+            {
+                "jobId": 3,
+                "status": "Finished",
+                "frameRate": 24,
+                "segmentsSplitted": 78,
+                "totalFramesWritten": 10807,
+                "bytesWritten": 326163921,
+                "jobFolder": "123456_abcdefghijklmnopqrstuvwxyz012345",
+                "input": {
+                    "ref": "see Inputs Section"
+                },
+                "encodingProfiles": [
+                    { "ref": "see EncodingProfiles Section" }
+                ],
+                "statusDescription": "",
+                "createdAt": {
+                    "date": "11.03.2015 16:41:00",
+                    "timezone": {
+                        "timezone_type": 3,
+                        "timezone": "Europe/Berlin"
+                    }
+                },
+                "duration": 125,
+                "encodedDuration": 450,
+                "enqueueDuration": 67,
+                "realtimeFactor": 3.6,
+                "enqueuedAt": {
+                    "date": "11.03.2015 16:41:00",
+                    "timezone": {
+                        "timezone_type": 3,
+                        "timezone": "Europe/Berlin"
+                    }
+                },
+                "startedAt": {
+                    "date": "11.03.2015 16:41:00",
+                    "timezone": {
+                        "timezone_type": 3,
+                        "timezone": "Europe/Berlin"
+                    }
+                },
+                "finishedAt": {
+                    "date": "11.03.2015 16:41:00",
+                    "timezone": {
+                        "timezone_type": 3,
+                        "timezone": "Europe/Berlin"
+                    }
+                },
+                "manifestUrls": {
+                    "mpdUrl": "URL_TO_MPD",
+                    "m3u8Url": "URL_TO_HLS_PLAYLIST"
+                }
+            }
+
+## Transfer Job [/job/transfer]
+### Create a Transfer Job [POST]
+Transfers a job to an already created output such as an S3 bucket or a FTP server.
++ Attributes(object)
+    + jobId (required, number) - Job-ID
+    + outputId (required, number) - Output-ID
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+
+            { 
+                "jobId": 1,
+                "outputId": 1
+            }
+        
++ Response 201 (application/json)
+
+        {
+                "id": 123,
+                "jobId": 1,
+                "status": "preparing",
+                "progress": 0,
+                "createdAt": "2015-08-06 11:03:16",
+                "outputId": 3,
+                "outputName": "Output Profile Name"
+        }
+
+
+## List Transfer Jobs [/job/{jobId}/transfers]
+### List Transfer Jobs [GET]
+List all transfers for a given job, e.g., to which destinations this job has been transfered.
+
+The response will contain a attribute called "status" amongst various other attributes. It can take the following values with it:
+
+| Value           | Description |
+|-----------------|-------------|
+| preparing       | The transfer-request has been enqueued and waits for to be processed. |
+| transfer        | The transfer is being processed at the moment. |
+| finished        | The transfer has been created successfully. |
+| error           | Some error occured while creating the transfer. |
+
++ Parameters
+    + jobId (required, number) - Job-ID
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+        
++ Response 200 (application/json)
+
+        [
+            {
+                "id": 123,
+                "jobId": 1,
+                "status": "finished",
+                "progress": 100,
+                "outputProfile": {
+                    "name": "Output Profile Name",
+                    "outputUrl": "https://domain.com/path/to/your/content",
+                    "relOutputUrl": "path/to/your/content"
+                },
+                "createdAt": "yyyy-mm-dd hh:mm:ss",
+                "finishedAt": "yyyy-mm-dd hh:mm:ss",
+                "duration": 120
+            }
+        ]
+        
+## Get Manifest Info [/job/{jobId}/manifest-info]
+### Get Manifest Info [GET]
+Returns all values needed to build your own manifest files.
++ Parameters
+    + jobId (required, number) - Job-ID
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+        
++ Response 200 (application/json)
+
+        {
+            "job_id": "1",
+            "media_type": "static",
+            "media_duration": 70,
+            "encoding_started": "dd.mm.yyyy hh:mm:ss.mmmmmm GMT",
+            "encoding_finished": "dd.mm.yyyy hh:mm:ss.mmmmmm GMT",
+            "base_url": "http://www.yourhost.com/path_to_your/encoding_job_files",
+            "video_tracks": [
+            {
+                "codec": "avc1.42c00d",
+                "mime_type": "video/mp4",
+                "video_width": 480,
+                "video_height": 202,
+                "video_framerate": "24",
+                "bitrate": 512000,
+                "segment_duration": 119973,
+                "timescale": 29956,
+                "number_of_segments": 18,
+                "dash": {
+                    "init_segment": "video/202_512000/dash/init.mp4",
+                    "segment_template": "video/202_512000/dash/segment_$Number$.m4s"
+                },
+                "hls": {
+                    "segment_template": "video/202_512000/hls/segment_$Number$.ts"
+                }
+            }
+          ],
+          "audio_tracks": [
+            {
+                "audio_channels": 2,
+                "language": "en",
+                "codec": "mp4a.40.2",
+                "mime_type": "audio/mp4",
+                "audio_sampling_rate": 48000,
+                "bitrate": 128000,
+                "segment_duration": 176091,
+                "timescale": 44100,
+                "number_of_segments": 18,
+                "dash": {
+                    "init_segment": "audio/1_stereo_128000/dash/init.mp4",
+                    "segment_template": "audio/1_stereo_128000/dash/segment_$Number$.m4s"
+                },
+                  "hls": {
+                    "segment_template": "audio/1_stereo_128000/hls/segment_$Number$.ts"
+                }
+            }
+          ]
+        }
+
+# Group Manifests
+Create your own Playlist by merging your finished Encoding-Jobs into one Multi-Period Manifest File.
+## Multi Period MPD [/manifest/mpd/multi-period]
+### Create multi period mpd [POST]
+
++ Request (application/json)
+    + `jobs` (required, integer array): Job ids of *Finished* jobs that created an mpd file
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+
+            {
+                "jobs": [1,2,3]
+            }
+
++ Response 200 (application/json)
+
+        http://example.com/path/to/mpd/multi_period_55a6158c67494.mpd
+        
+
+## VTT MPD [/manifest/mpd/vtt]
+### Create vtt mpd [POST]
+
++ Attributes(object)
+    + jobId (required, number) - Job id of Finished job to create vtt mpd file from.
+    + subtitles (required, string) - URL to your vtt file to include in your mpd.
+    + outputFileName (optional, string) - Output filename of the mpd
+
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+    
+            {
+                "jobId": 1,
+                "subtitles": 
+                [
+                    {
+                        "langShort": "de",
+                        "langLong": "Deutsch",
+                        "url": "https://bitdash-a.akamaihd.net/content/sintel/subtitles/subtitles_de.vtt"
+                    },
+                    {
+                        "langShort": "en",
+                        "langLong": "English",
+                        "url": "https://bitdash-a.akamaihd.net/content/sintel/subtitles/subtitles_en.vtt"
+                    },
+                    {
+                        "langShort": "es",
+                        "langLong": "Spanish",
+                        "url": "https://bitdash-a.akamaihd.net/content/sintel/subtitles/subtitles_es.vtt"
+                    }
+                ]
+            }
+
++ Response 200 (application/json)
+
+        {
+            "mpdUrl": "http://example.com/path/to/mpd/vtt_55a6158c67494.mpd"
+        }
+
+
+## VTT HLS [/manifest/hls/vtt]
+### Create a vtt hls[POST]
+
++ Attributes(object)
+    + jobId (required, number) - Job id of *Finished* job to create vtt hls file from.
+    + subtitles (required, string) - URL to your vtt file to include in your vtt hls.
+    + outputFileName (optional, string) - Output filename of the vtt hls
+
++ Request (application/json)
+    
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+    
+            {
+                "jobId": 1,
+                "subtitles": 
+                [
+                    {
+                        "langShort": "de",
+                        "langLong": "Deutsch",
+                        "url": "https://bitdash-a.akamaihd.net/content/sintel/subtitles/subtitles_de.vtt"
+                    },
+                    {
+                        "langShort": "en",
+                        "langLong": "English",
+                        "url": "https://bitdash-a.akamaihd.net/content/sintel/subtitles/subtitles_en.vtt"
+                    },
+                    {
+                        "langShort": "es",
+                        "langLong": "Spanish",
+                        "url": "https://bitdash-a.akamaihd.net/content/sintel/subtitles/subtitles_es.vtt"
+                    }
+                ]
+            }
+
++ Response 200 (application/json)
+
+            {
+                "hlsUrl": "http://example.com/path/to/mpd/vtt_55a6158c67494.m3u8"
+            }
+
+# Group Transmux *BETA*
+This feature is currently a beta-version. Options, routes, and parameters might change until its final release.
+
+## Transmux [/transmux]
+### Create a Transmux [POST]
+Create a transmuxing of an already existing encoding.
+You can get the videoRepresentationId and audioRepresentationId from the encoding profile.
+
++ Attributes (object)
+    + jobId: 123 (required, number) - Job id to create a thumbnail from.
+    + videoRepresentationId: 12345 (required, number) - Unique identifier to select the encoded video-representation, which shall be used for transmuxing. 
+    + audioRepresentationIds: 67899 (required, array) - Unique identifier to select the encoded audio-representation, which shall be used for transmuxing. See encoding-profile-details. There you find the representationId for video/audio configurations
+    + filename (optional, string) - custom filename, e.g. your-filename.mp4
+    + encryptionConfig (optional, object) - config with keyAscii and kid
+    
+
++ Request (application/json)
+    + Header
+
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+    
+            {
+                "jobId": 123,
+                "videoRepresentationId": 12345,
+                "audioRepresentationIds": [67899],
+                "filename": "your-filename.mp4"
+            }
+
++ Response 201 (application/json)
+
+            {
+                "id": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+                "jobId": 123,
+                "videoRepresentationId": 12345,
+                "audioRepresentationIds": [67899],
+                "filename": "your-filename.mp4",
+                "status": "finished",
+                "bytesWritten": 123456789,
+                "outputUrl": "http://domain-for-your-content.com/path/to/your/transmuxed/content.mp4",
+                "relOutputUrl": "path/to/your/transmuxed/content.mp4"
+                "createdAt": {
+                    "date": "2015-06-12 12:28:03.000000",
+                    "timezone_type": 3,
+                    "Europe/Berlin"
+                },
+                "startedAt": {
+                    "date": "2015-06-12 12:28:03.000000",
+                    "timezone_type": 3,
+                    "Europe/Berlin"
+                },
+                "finishedAt": {
+                    "date": "2015-06-12 12:28:03.000000",
+                    "timezone_type": 3,
+                    "Europe/Berlin"
+                },
+            }
+            
+### Create a Transmux with encryption [POST]
+Create a transmuxing of an already existing encoding and apply encryption.
+
++ Attributes (object)
+    + jobId: 123 (required, number) - Job id to create a thumbnail from.
+    + videoRepresentationId: 12345 (required, number) - Unique identifier to select the encoded video-representation, which shall be used for transmuxing. 
+    + audioRepresentationIds: 67899 (required, array) - Unique identifier to select the encoded audio-representation, which shall be used for transmuxing. See encoding-profile-details. There you find the representationId for video/audio configurations
+    + filename (optional, string) - custom filename, e.g. your-filename.mp4
+    + encryptionConfig (optional, object) - config with keyAscii and kid
+    
+
++ Request (application/json)
+    + Header
+
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+    
+            {
+                "jobId": 123,
+                "videoRepresentationId": 12345,
+                "audioRepresentationIds": [67899],
+                "filename": "your-filename.mp4",
+                "encryptionConfig": {
+                   "keyAscii": "12341234123412341234123412341234",
+                   "kid": "6269746d6f76696e7465737474657374"
+                }
+            }
+
++ Response 201 (application/json)
+
+            {
+                "id": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+                "jobId": 123,
+                "videoRepresentationId": 12345,
+                "audioRepresentationIds": [67899],
+                "filename": "your-filename.mp4",
+                "encryptionConfig": {
+                   "keyAscii": "12341234123412341234123412341234",
+                   "kid": "6269746d6f76696e7465737474657374"
+                },
+                "status": "finished",
+                "bytesWritten": 123456789,
+                "outputUrl": "http://domain-for-your-content.com/path/to/your/transmuxed/content.mp4",
+                "relOutputUrl": "path/to/your/transmuxed/content.mp4"
+                "createdAt": {
+                    "date": "2015-06-12 12:28:03.000000",
+                    "timezone_type": 3,
+                    "Europe/Berlin"
+                },
+                "startedAt": {
+                    "date": "2015-06-12 12:28:03.000000",
+                    "timezone_type": 3,
+                    "Europe/Berlin"
+                },
+                "finishedAt": {
+                    "date": "2015-06-12 12:28:03.000000",
+                    "timezone_type": 3,
+                    "Europe/Berlin"
+                }
+            }
+
+## Transmux Details [/transmux/{id}]
+### Get Transmux details [GET]
+This call can be used to get detailed information about an already executed transmuxing.
+
+The response will contain a attribute called "status" amongst various other attributes. It can take the following values with it:
+
+| Value           | Description |
+|-----------------|-------------|
+| created         | The transmux-request has been created and waits for to be processed. |
+| assigned        | The transmux has been enqueued. |
+| inprogress      | The transmux is in progress. |
+| finished        | The transmux has been finsihed successfully. |
+| error           | Some error occured while creating the transmux. |
+
++ Request (application/json)
+    + Header
+
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
++ Response 200 (application/json)
+
+            {
+                "id": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+                "jobId": 123,
+                "videoRepresentationId": 12345,
+                "audioRepresentationIds": [67899],
+                "filename": "your-filename.mp4",
+                "status": "finished",
+                "bytesWritten": 123456789,
+                "outputUrl": "http://domain-for-your-content.com/path/to/your/transmuxed/content.mp4",
+                "relOutputUrl": "path/to/your/transmuxed/content.mp4"
+                "createdAt": {
+                    "date": "2015-06-12 12:28:03.000000",
+                    "timezone_type": 3,
+                    "Europe/Berlin"
+                },
+                "startedAt": {
+                    "date": "2015-06-12 12:28:03.000000",
+                    "timezone_type": 3,
+                    "Europe/Berlin"
+                },
+                "finishedAt": {
+                    "date": "2015-06-12 12:28:03.000000",
+                    "timezone_type": 3,
+                    "Europe/Berlin"
+                }
+            }
+
+
+# Group Notifications *BETA*
+This feature is currently a beta-version. Options, routes, and parameters might change until its final release.
+
+The request-body we are using when we send a POST-Request to your callback-URL, always has the following format and its payload-property contains the details of the specific resource (e.g. encoding-details):
+```HTTP
+{
+  "payload": {
+    ...
+    <resource-details>
+    ...
+  },
+  "callbackAttempt": 0,
+  "eventTriggerId": "<eventTriggerId>",
+  "subscription": {
+    "id": "<your-subscription-id>",
+    "event": {
+               "id": "46faf62b-4f80-4f8a-b9e4-b23bf050f43c",
+               "name": "encoding.finished",
+               "description": "Occurs once an encoding is finished and ready to be transferred or to be consumed by other bitmovin services"
+             },
+    "url": "<your-callback-url>"
+  }
+}
+```
+Our notification-service expects the HTTP Status Code ```200 OK´´´ as a result, otherwise it will attempt to deliver the event 3 more times, with exponential backoff, until it get labelled as failed.
+
+## Events [/notifications/events]
+### Get all available Events [GET]
+Get a list of all available notification-events and their IDs which is needed to create a subscription.    
+
++ Request (application/json)
+    + Header
+
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
++ Response 200 (application/json)
+
+            [
+              {
+                "id": "175dd18f-602e-449d-8ad8-714645ae2e4e",
+                "name": "encoding.error",
+                "description": "Occurs if an encoding has failed"
+              },
+              {
+                "id": "46faf62b-4f80-4f8a-b9e4-b23bf050f43c",
+                "name": "encoding.finished",
+                "description": "Occurs once an encoding is finished and ready to be transferred or to be consumed by other bitmovin services"
+              }
+            ]
+            
+## Subscriptions [/notifications/subscriptions]
+### Create a Subscription for an Event [POST]
+Create a subscription for and specific event with an callback-URL, which will receive the POST request containing a payload with details about the affected resource.
+
++ Attributes (object)
+    + eventId: 46faf62b-4f80-4f8a-b9e4-b23bf050f43c (required, string) - EventId you want to subscribe to.
+    + url: 12345 (required, string) - Callback-URL which is able to handle the POST-request from our service with   
+
++ Request (application/json)
+    + Header
+
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+    
+            {
+              "eventId": "46faf62b-4f80-4f8a-b9e4-b23bf050f43c",
+              "url": "<your-callback-url>"
+            }
+
++ Response 201 (application/json)
+
+            {
+                "id": "<your-subscription-id>",
+                "event": {
+                  "id": "46faf62b-4f80-4f8a-b9e4-b23bf050f43c",
+                  "name": "encoding.finished",
+                  "description": "Occurs once an encoding is finished and ready to be transferred or to be consumed by other bitmovin services"
+                },
+                "url": "<your-callback-url>"
+              }
+            
+### Get all Subscriptions [GET]
+Get a list of all your subscriptions.
+
++ Request (application/json)
+    + Header
+
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
++ Response 200 (application/json)
+
+            [
+              {
+                "id": "<your-subscription-id>",
+                "event": {
+                  "id": "46faf62b-4f80-4f8a-b9e4-b23bf050f43c",
+                  "name": "encoding.finished",
+                  "description": "Occurs once an encoding is finished and ready to be transferred or to be consumed by other bitmovin services"
+                },
+                "url": "<your-callback-url>"
+              }
+            ]
+
+### Get all Events fired of an Subscription [GET /notifications/subscriptions/{id}/trigger]
+Get all Events fired of an Subscription
+
++ Request (application/json)
+    + Header
+
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
++ Response 200 (application/json)
+
+            [
+                {
+                    "id": "<event-trigger-id>",
+                    "callbackAttempts": [
+                        {
+                            "id": "<callback-attempt-id-1>",
+                            "connectionTime": "2016-07-15T17:24:36.236",
+                            "attemptNumber": 1,
+                            "errorMessage": null,
+                            "status": "successful",
+                            "responseCode": 200,
+                            "responseData": "ok",
+                            "method": "POST"
+                        }
+                    ],
+                    "subscription": {
+                        "id": "<subscription-id>",
+                        "event": {
+                        "id": "<event-id>",
+                        "name": "encoding.finished",
+                        "description": "Occurs once an encoding is finished and ready to be transferred or to be consumed by other bitmovin services"
+                    },
+                    "url": "<your-callback-url>"
+                    },
+                    "payload": "{\"jobId\":123456,\"status\":\"Finished\",\"speed\":\"premium\", ... }",
+                    "status": "completed",
+                    "latestCallbackAttempt": {
+                        "id": "<callback-attempt-id-1>",
+                        "connectionTime": "2016-07-15T17:24:36.236",
+                        "attemptNumber": 1,
+                        "errorMessage": null,
+                        "status": "successful",
+                        "responseCode": 200,
+                        "responseData": "ok",
+                        "method": "POST"
+                    }
+                }
+            ]
+
+            
+### Get a specific Subscription [GET /notifications/subscriptions/{id}]
+Get a specific Subscription
+
++ Request (application/json)
+    + Header
+
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
++ Response 200 (application/json)
+
+            {
+              "id": "<your-subscription-id>",
+              "event": {
+                "id": "46faf62b-4f80-4f8a-b9e4-b23bf050f43c",
+                "name": "encoding.finished",
+                "description": "Occurs once an encoding is finished and ready to be transferred or to be consumed by other bitmovin services"
+              },
+              "url": "<your-callback-url>"
+            }
+
+### Remove a specific Subscription [DELETE /notifications/subscriptions/{id}]
+Remove a specific Subscription
+
++ Request (application/json)
+    + Header
+
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
++ Response 200 (application/json)
+
+            {
+              "id": "<your-subscription-id>",
+              "event": {
+                "id": "46faf62b-4f80-4f8a-b9e4-b23bf050f43c",
+                "name": "encoding.finished",
+                "description": "Occurs once an encoding is finished and ready to be transferred or to be consumed by other bitmovin services"
+              },
+              "url": "<your-callback-url>"
+            }
+
+
+# Group Thumbnails
+
+## Thumbnail [/thumbnail]
+### Create a Thumbnail Async [POST]
+Create a thumbnail of a given job asynchronous.
+
++ Attributes (object)
+    + jobId: 3 (required, number) - Job id to create a thumbnail from.
+    + height: 320 (required, number) - Height of the thumbnail
+    + position: 24 (required, number) - Position in seconds where the thumbnail should be created from
+    + filename (optional, string) - A filename to store your thumbnail
+    + async (optional, boolean) - Create the thumbnail asynchronous
+
++ Request (application/json)
+    + Header
+
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+    
+            {
+                "jobId": 3,
+                "height": 320,
+                "position": 24,
+                "async": true
+            }
+
++ Response 200 (application/json)
+
+            {
+                "id": "e2fa8063-e92d-42f4-9085-a4c7ad997a72",
+                "thumbnailUrl": "https://url.to/your/thumbnail",
+                "state": "IN_PROGRESS"
+            }
+            
+### Get Thumbnail [GET /thumbnail/{id}]
+Get the status of a thumbnail creation.
+
+The response will contain a attribute called "status" amongst various other attributes. It can take the following values with it:
+
+| Value           | Description |
+|-----------------|-------------|
+| ENQUEUED        | The thumbnail-request has been enqueued and waits for to be processed. |
+| IN_PROGRESS     | The thumbnail is being created at the moment. |
+| FINISHED        | The thumbnail has been created successfully. |
+| ERROR           | Some error occured while creating the thumbnail. |
+
++ Parameter
+     + id (required, string, `6d84e126-d10c-4e52-bbfb-bd4c92bc8333`) ... UUID of the thumbnail.
+
++ Response 200 (application/json)
+
+            {
+                "id": "e2fa8063-e92d-42f4-9085-a4c7ad997a72",
+                "thumbnailUrl": "https://url.to/your/thumbnail",
+                "state": "FINISHED"
+            }
+            
+### Create a Thumbnail - deprecated [POST]
+*** This call is deprecated ***<br>
+This call will be removed latest on 1st July 2016<br>
+Please use the async version of this call below.
+
++ Attributes (object)
+    + jobId: 3 (required, number) - Job id to create a thumbnail from.
+    + height: 320 (required, number) - Height of the thumbnail
+    + position: 24 (required, number) - Position in seconds where the thumbnail should be created from
+    + filename (optional, string) - A filename to store your thumbnail
+
++ Request (application/json)
+    + Header
+
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+    
+            {
+                "jobId": 3,
+                "height": 320,
+                "position": 24
+            }
+
++ Response 200 (application/json)
+
+            {
+                "thumbnailUrl": "https://url.to/your/thumbnail"
+            }
+
+## Sprite [/sprite]
+            
+### Create a Sprite Async [POST]
+Create a sprite for thumbnail seeking with our bitdash player.
+
++ Attributes (object)
+    + jobId: 37647(required, number) - Id of the job to create a sprite from.
+    + height: 240 (required, number) - Height of one thumbnail
+    + width: 320 (required, number) - Width of one thumbnail.
+    + distance: 10 (optional, string) - Distance in seconds between a screenshot.
+    + async: true (optional, boolean) - Create the sprite asynchronous
+    
+
++ Request (application/json)
+    + Header
+
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+    
+            {
+                "jobId": 37647,
+                "height": 240,
+                "width": 320,
+                "distance": 10,
+                "async": true
+            }
+
++ Response 200 (application/json)
+
+            {
+                "id": "e2fa8063-e92d-42f4-9085-a4c7ad997a72",
+                "state": "IN_PROGRESS",
+                "vttUrl": "http://url.to/your/sprite.vtt",
+                "spriteUrl": "http://url.to/your/sprite.jpg"
+            }
+            
+### Get Sprite [GET /sprite/{id}]
+Get the status of a sprite creation.
+
+The response will contain a attribute called "status" amongst various other attributes. It can take the following values with it:
+
+| Value           | Description |
+|-----------------|-------------|
+| ENQUEUED        | The sprite-request has been enqueued and waits for to be processed. |
+| IN_PROGRESS     | The sprite is being created at the moment. |
+| FINISHED        | The sprite has been created successfully. |
+| ERROR           | Some error occured while creating the sprite. |
+
++ Parameter
+     + id (required, string, `6d84e126-d10c-4e52-bbfb-bd4c92bc8333`) ... UUID of the sprite.
+
++ Response 200 (application/json)
+
+            {
+                "id": "e2fa8063-e92d-42f4-9085-a4c7ad997a72",
+                "state": "FINISHED",
+                "vttUrl": "http://url.to/your/sprite.vtt",
+                "spriteUrl": "http://url.to/your/sprite.jpg"
+            }
+
+### Create a Sprite - deprecated [POST]
+*** This call is deprecated ***<br>
+This call will be removed latest on 1st July 2016<br>
+Please use the async version of this call.
+
++ Attributes (object)
+    + jobId: 37647(required, number) - Id of the job to create a sprite from.
+    + height: 240 (required, number) - Height of one thumbnail
+    + width: 320 (required, number) - Width of one thumbnail.
+    + distance: 10 (optional, string) - Distance in seconds between a screenshot.
+
++ Request (application/json)
+    + Header
+
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+    
+            {
+                "jobId": 37647,
+                "height": 240,
+                "width": 320,
+                "distance": 10
+            }
+
++ Response 200 (application/json)
+
+            {
+                "vttUrl": "http://url.to/your/sprite.vtt",
+                "spriteUrl": "http://url.to/your/sprite.jpg"
+            }
+
+
+
+# Group Statistics
+The bitcodin system also provides detailed statistics over all jobs and on a monthly basis. This statistics show you how many jobs have been encoded in a given time window, how many MB of output you have produced, how fast the encoding was in average, etc.
+## Job Statistics [/statistics]
+### Get job statistics from current month[GET]
+This call provides the statistics for the current month.
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+        
+        
++ Response 200 (application/json)
+        
+            {
+                "jobCountFinished": 3,
+                "realtimeFactor": 3.42,
+                "totalBytesWritten": "903.08 MB",
+                "avgBytesWritten": "301.03 MB",
+                "totalTimeEnqueued": "6 min 18 sec",
+                "avgTimeEnqueued": "2 min 6 sec",
+                "totalTimeEncoded": "8 min 38 sec",
+                "avgTimeEncoded": "2 min 52 sec",
+                "totalTime": "15 min 1 sec",
+                "avgJobTime": "5 min",
+                "volume-chart": [
+                    [
+                        "ids",
+                        "volume [GB]"
+                    ],
+                    [
+                        1,
+                        0.295
+                    ],
+                    [
+                        2,
+                        0.326
+                    ],
+                    [
+                        3,
+                        0.326
+                    ]
+                ],
+                "duration-chart": [
+                    [
+                        "ids",
+                        "duration [min]"
+                    ],
+                    [
+                        1,
+                        6.35
+                    ],
+                    [
+                        2,
+                        5.433
+                    ],
+                    [
+                        3,
+                        3.233
+                    ]
+                ],
+                "realtime-chart": [
+                    [
+                        "ids",
+                        "factor"
+                    ],
+                    [
+                        1,
+                        4.169
+                    ],
+                    [
+                        2,
+                        2.5
+                    ],
+                    [
+                        3,
+                        3.6
+                    ]
+                ]
+            }
+
+## Custom Job Statistics [/statistics/jobs/{from}/{to}]
+### Get job statistics in given time window [GET]
+This call provides the statistics for time window defined by the user.
++ Parameters
+    + from: `2000-12-24` (required, string) - Beginning of date-range
+    + to: `2100-12-24` (required, string) - End of date-range
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
++ Response 200 (application/json)
+
+            {
+                "averageDurationInSeconds": 577200,
+                "durationAllInSeconds":     1731600,
+                "allJobs":                  911,
+                "jobsFinished":             900,  
+                "jobsUnfinished":            11,  
+                "workloadPercentage":       3.14159265359,
+                "timeWindowInSeconds":      3156537600
+            }
+
+
+# Group Payment
+The payment api calls allow you get, create and update your payment information.
+
+## User Information [/payment/user]
+### Get user-payment information [GET]
+This call returns the payment user information such as amount of money that is available.
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+
++ Response 200 (application/json)
+
+            {
+                "hasCreditCard": false,
+                "hasInvoiceInfo": false,
+                "amount": 0,
+                "currency": "USD",
+                "billsCount": 6,
+                "vat": false,
+                "plan": {
+                    "id": 1,
+                    "name": "FREE",
+                    "maxTranscodings": 10,
+                    "chargePerGb": -1,
+                    "maxGb": 2500000000,
+                    "price": 0
+                }
+            }
+            
+## Bills [/payment/bills/{page}]
+### Get a list of all bills [GET]
+List all bills on your bitcodin account structured as pages.
++ Parameters
+    + page (optional, integer) ... page number. If page number doesn't exist, last page will be returned. (10 Bills per page)
+        + Default: 1
+        
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+
++ Response 200 (application/json)
+
+        {
+            "perPage": 10,
+            "totalCount": 6,
+            "bills": [
+                {
+                    "id": 4188,
+                    "jobId": 4188,
+                    "amount": 0,
+                    "description": "Transcoding JobID: 4188",
+                    "isPayed": true,
+                    "isError": false
+                },
+                {
+                    "id": 4187,
+                    "jobId": 4187,
+                    "amount": 0,
+                    "description": "Transcoding JobID: 4187",
+                    "isPayed": true,
+                    "isError": false
+                },
+                {
+                    "id": 4168,
+                    "jobId": 4168,
+                    "amount": 0,
+                    "description": "JobID 4168 canceled due to insufficient contingent",
+                    "isPayed": true,
+                    "isError": true
+                },
+                {
+                    "id": 4106,
+                    "jobId": 4106,
+                    "amount": 0,
+                    "description": "Transcoding JobID: 4106",
+                    "isPayed": true,
+                    "isError": false
+                },
+                {
+                    "id": 4105,
+                    "jobId": 4105,
+                    "amount": 0,
+                    "description": "Transcoding JobID: 4105",
+                    "isPayed": true,
+                    "isError": false
+                },
+                {
+                    "id": 4101,
+                    "jobId": 4101,
+                    "amount": 0,
+                    "description": "JobID 4101 canceled due to insufficient contingent",
+                    "isPayed": true,
+                    "isError": true
+                }
+            ]
+        }
+
+# Group Live Streaming
+
+## Live Stream [/livestream]
+Endpoint for your RTMP live streams.
+
+The response will contain a attribute called "status" amongst various other attributes. It can take the following values with it:
+
+| Value           | Description |
+|-----------------|-------------|
+| STARTING        | Your Livestream-RTMP-Endpoint is preparing |
+| RUNNING         | Your Livestream-RTMP-Endpoint is ready to use |
+| STOPPING        | Your Livestream-RTMP-Endpoint is shutting down |
+| TERMINATED      | Your Livestream-RTMP-Endpoint shut down successfully |
+| ERROR           | Your Livestream-RTMP-Endpoint is no longer reachable due to an internal error |
+
+The **rtmpPushUrl** consists of `{protocol}://{server address}:{port}/{application name}`
+
+The `application name` is **bitcodin**
+
+**NOTE!** In some RTMP clients the `application name` and the `stream key` has to be appended to the rtmp push url if they are not extra input fields.
+
+### Create a Live Stream [POST]
+Creates a RTMP live stream.
+
+Before you can use your instance you have to wait until the status is `RUNNING`
+
++ Attributes(object)
+    + label: testlivestream (required, string) - A string to name your livestream
+    + encodingProfileId: 44 (required, number) - The id of the encoding profile for your live stream
+    + outputId: 23 (required, number) - The id of the GCS output for your live stream
+    + streamKey: stream (optional, string) - Stream identifies your stream in the bitcodin encoding service
+    + timeshift: 600 (optional, number) - Timeshift buffer in seconds
+    + liveEdgeOffset: 60 (optional, number) - Value range: 1 to 3600 seconds, Offset to the time when the first segment was available
+    + region: `europe-west1-c` (optional, string) - Available regions: us-west1-a,us-west1-b,us-central1-b,us-central1-c,us-central1-f,us-east1-b,us-east1-c,us-east1-d,europe-west1-c,europe-west1-d,asia-east1-a,asia-east1-b,asia-east1-c
+    
++ Request (application/json)
+    + Header
+    
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
+    + Body
+    
+            {
+                "label": "test-livestream",
+                "streamKey": "stream",
+                "timeshift": 600,
+                "encodingProfileId": 44,
+                "outputId": 23
+            }
+
++ Response 200 (application/json)
+
+            {
+                "id": 7,
+                "status": "STARTING",
+                "label": "test-livestream",
+                "timeshift": 600,
+                "createdAt": {
+                    "date": "2015-06-12 12:28:03.000000",
+                    "timezone_type": 3,
+                    "Europe/Berlin"
+                },
+                "generatedBytes": 20034,
+                "outputId": 14671,
+                "encodingProfileId": 23003,
+                "terminatedAt": null,
+                "rtmpPushUrl": null,
+                "streamKey": "stream",
+                "mpdUrl": null,
+                "hlsUrl": null            
+            }
+
+
+### Live Stream Details [GET /livestream/{id}]
+Retrieve details of your live stream.
+
++ Parameters
+    + id (required, integer) ... Live Stream id
+
++ Request (application/json)
+    + Header
+            
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
++ Response 200 (application/json)
+
+            {
+                "id": 7,
+                "status": "RUNNING",
+                "label": "test-livestream",
+                "timeshift": 600,
+                "createdAt": {
+                    "date": "2015-06-12 12:28:03.000000",
+                    "timezone_type": 3,
+                    "Europe/Berlin"
+                },
+                "generatedBytes": 132408000,
+                "outputId": 14671,
+                "encodingProfileId": 23003,
+                "terminatedAt": null,
+                "rtmpPushUrl": "rtmp://52.18.149.124:1935/bitcodin",
+                "streamKey": "stream",
+                "mpdUrl": "http://output.url/mpds/stream.mpd",
+                "hlsUrl": "http://output.url/m3u8s/stream.m3u8"
+            }
+            
+### List your Live Stream [GET /livestream]
+Retrieve a list of all your previous and active live streams.
+
++ Request (application/json)
+    + Header
+            
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
++ Response 200 (application/json)
+
+            [{
+                "id": 7,
+                "status": "RUNNING",
+                "label": "test-livestream",
+                "timeshift": 600,
+                "createdAt": {
+                    "date": "2015-06-12 12:28:03.000000",
+                    "timezone_type": 3,
+                    "Europe/Berlin"
+                },
+                "generatedBytes": 132408000,
+                "outputId": 14671,
+                "encodingProfileId": 23003,
+                "terminatedAt": null,
+                "rtmpPushUrl": "rtmp://52.18.123.124:1935/bitcodin",
+                "streamKey": "stream",
+                "mpdUrl": "http://output.url/mpds/stream.mpd",
+                "hlsUrl": "http://output.url/m3u8s/stream.m3u8"
+            },
+            {
+                "id": 8,
+                "status": "TERMINATED",
+                "label": "test-livestream",
+                "timeshift": 600,
+                "createdAt": {
+                    "date": "2015-06-12 10:23:33.000000",
+                    "timezone_type": 3,
+                    "Europe/Berlin"
+                },
+                "generatedBytes": 145408000,
+                "outputId": 15631,
+                "encodingProfileId": 23003,
+                "terminatedAt": {
+                    "date": "2015-06-12 14:12:32.000000",
+                    "timezone_type": 3,
+                    "Europe/Berlin"
+                },
+                "rtmpPushUrl": "rtmp://96.44.234.124:1935/bitcodin",
+                "streamKey": "test",
+                "mpdUrl": "http://output.url/mpds/stream.mpd",
+                "hlsUrl": "http://output.url/m3u8s/stream.m3u8"            
+            },
+            {
+                "id": 10,
+                "status": "RUNNING",
+                "label": "test-livestream",
+                "timeshift": 600,
+                "createdAt": {
+                    "date": "2015-06-12 13:39:03.000000",
+                    "timezone_type": 3,
+                    "Europe/Berlin"
+                },
+                "generatedBytes": 235408000,
+                "outputId": 3453,
+                "encodingProfileId": 2235,
+                "terminatedAt": null,
+                "rtmpPushUrl": "rtmp://87.34.145.124:1935/bitcodin",
+                "streamKey": "asdf",
+                "mpdUrl": "http://output.url/mpds/stream.mpd",
+                "hlsUrl": "http://output.url/m3u8s/stream.m3u8"
+            }]
+            
+### Delete Live Stream [DELETE /livestream/{id}]
+Terminates your live stream.
+
++ Parameters
+    + id (required, integer) ... Live Stream id
+
++ Request (application/json)
+    + Header
+            
+            bitcodin-api-version: v1
+            bitcodin-api-key: yoursuperfancyencryptedapikey
+
++ Response 204 (application/json)
+
+
+# Data Structures
+
+## EncodingProfile (object)
++ name (string, required) - Name of your new Encoding Profile
++ videoStreamConfigs (array[VideoStreamConfig], required) - Array of VideoStreamConfig-Settings of your choice
++ audioStreamConfigs (array[AudioStreamConfig], required) - Array of AudioStreamConfig-Settings of your choice
++ watermarkConfig (WaterMarkConfig, optional) - A watermark image can be overlayed to the input file via the watermarkConfig. The position of the image in pixels can be specified via the 'top', 'bottom', 'left' and 'right' parameters. Only one horizontal and one vertical distance parameter is allowed.
++ croppingConfig  (CroppingConfig, optional) - The parameters `top`, `bottom`, `left` and `right` specify how much pixels of the input video will be cropped on each side of your input before encoding starts.
++ rotation: 0 (optional, number) - Rotation of the video in degrees. A positive value will rotate the video clockwise and a negative one counter clockwise.
++ segmentLength: 4 (optional, number) - Only available using standard speed. Defines the length of a segment. Must be a value between 1 and 9 seconds.
+
+## VideoStreamConfig (object)
+
++ defaultStreamId: 0 (number, required) - The default stream mapping
++ bitrate: 5000000 (number, required) - Video bitrate in bit/s (max 20Mbit/s)
++ codec: "h264, hevc" (string, optional) - Name of the codec
++ profile "main, high, baseline" (string, required) - Name of the profile
++ preset (string, required) - Name of the preset
++ height (number, required) - Video height
++ width (number, required) - Video width
++ rate (number, optional) - Only available using standard speed. The sample rate the encoded video should have in FPS. Values must be in the range from 1 to 120
+
+## AudioStreamConfig (object)
+
++ defaultStreamId: 0 (number, required) - 0 = First VideoInputStream, 1 = Second VideoInputStream and so on
++ bitrate: 256000 (number, required) - Audio Bitrate in Bit/s (max 256kBit/s)
++ rate (number, optional) - The sample rate the encoded audio should have in Hz. Possible values are: 0, 8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000, 64000, 88200, 96000
+
+## WaterMarkConfig (object)
+
++ image (string) - Url to image which should be used as watermark.
++ top (number, optional) - Distance between the top of the watermark image and the top of the input video
++ left (number, optional) - Distance between the left side of the watermark image and the left side of the input video
++ bottom (number, optional) - Distance between the bottom of the watermark image and the bottom of the input video
++ right (number, optional) - Distance between the right of the watermark image and the right of the input video
+
+## CroppingConfig  (object)
+
++ top (number, optional) - Amount of pixel which will be cropped of the input video from the top.
++ left (number, optional) -  Amount of pixel which will be cropped of the input video from the left side.
++ bottom (number, optional) -  Amount of pixel which will be cropped of the input video from the bottom.
++ right (number, optional) -  Amount of pixel which will be cropped of the input video from the right side.
+
+## AudioMetaData (object)
+
++ defaultStreamId (number, required) - Default stream id of the audio stream
++ language (string, required) - Language abbreviation [ISO 639-1] 
++ label (string, required) - Label of the language field
+
+## DrmConfig (object)
+
++ system (string, required) - We support widevine, playready, widevine_playready and clearkey
++ provider (string, required) - Also known as portal, owner or organization. You will get this value from Widevine.
++ signingKey (string, optional) - Replace this with the signing key you received from Widevine.
++ signingIV (string, required) - Replace this with the signing IV you received from Widevine.
++ requestUrl (string, required) - This is your private Widevine license server URL.
++ contentId (string, required) - This ID is used to link your content to the generated keys in the Widevine key managment system. This is up to you or your licensing provider. You can choose any value you like.
++ method (string, required) - Currently we only support MPEG-CENC ('mpeg_cenc'). 

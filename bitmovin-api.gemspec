@@ -17,4 +17,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "byebug"
   s.add_development_dependency "guard"
   s.add_development_dependency "guard-minitest"
+  s.add_development_dependency "apib-mock_server"
+  s.add_development_dependency "webmock"
+  s.add_development_dependency "minitest-color"
 end

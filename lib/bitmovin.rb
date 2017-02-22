@@ -3,6 +3,9 @@
 require 'bitmovin/helpers'
 require 'bitmovin/input'
 require 'bitmovin/output'
+require 'bitmovin/encoding_profile'
+require 'bitmovin/transfer_job'
+require 'bitmovin/job'
 
 module Bitmovin
   
