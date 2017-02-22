@@ -12,12 +12,13 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.homepage      = 'http://rubygems.org/gems/bitmovin-api'
   s.license       = 'MIT'
-  s.add_development_dependency "yard"
-  s.add_development_dependency "rake"
-  s.add_development_dependency "byebug"
-  s.add_development_dependency "guard"
-  s.add_development_dependency "guard-minitest"
-  s.add_development_dependency "apib-mock_server"
-  s.add_development_dependency "webmock"
-  s.add_development_dependency "minitest-color"
+  s.required_ruby_version = '>= 1.9.3'
+  s.add_development_dependency "yard", "~> 0.9"
+  s.add_development_dependency "rake", "~> 11.1"
+  s.add_development_dependency "byebug", "~> 9"
+  s.add_development_dependency "guard", "~> 2.14"
+  s.add_development_dependency "guard-minitest", "~> 2.4"
+  s.add_development_dependency "apib-mock_server", "~> 1.0", "> 1.0"
+  s.add_development_dependency "webmock", "~> 1.24"
+  s.add_development_dependency "minitest-color", "~> 0.0", ">= 0.0.1"
 end

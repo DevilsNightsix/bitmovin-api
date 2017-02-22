@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    bitmovin-api (0.0.1.pre)
+    bitmovin-api (0.0.1.pre.pre2)
 
 GEM
   remote: https://rubygems.org/
@@ -73,15 +73,15 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  apib-mock_server
+  apib-mock_server (~> 1.0, > 1.0)
   bitmovin-api!
-  byebug
-  guard
-  guard-minitest
-  minitest-color
-  rake
-  webmock
-  yard
+  byebug (~> 9)
+  guard (~> 2.14)
+  guard-minitest (~> 2.4)
+  minitest-color (~> 0.0, >= 0.0.1)
+  rake (~> 11.1)
+  webmock (~> 1.24)
+  yard (~> 0.9)
 
 BUNDLED WITH
    1.14.3
