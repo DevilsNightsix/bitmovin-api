@@ -14,3 +14,10 @@ or run
 ```bash
   gem install bitmovin-api
 ```
+
+#TODO
+
+* improve documentation
+* add CLI
+* improve spec
+* add rubocop & CI
