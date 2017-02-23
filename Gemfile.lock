@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    bitmovin-api (0.0.1)
+    bitmovin-api (0.0.2)
 
 GEM
   remote: https://rubygems.org/

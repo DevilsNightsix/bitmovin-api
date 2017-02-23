@@ -7,6 +7,8 @@ require 'bitmovin/encoding_profile'
 require 'bitmovin/transfer_job'
 require 'bitmovin/job'
 
+require 'bitmovin/client'
+
 module Bitmovin
 
   API_URL = 'https://portal.bitcodin.com/api'
