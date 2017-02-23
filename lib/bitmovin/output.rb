@@ -24,6 +24,7 @@ module Bitmovin
       prefix
       make_public
       create_sub_directory
+      created_at
     }
 
     ATTRIBUTES.each do |_attr|

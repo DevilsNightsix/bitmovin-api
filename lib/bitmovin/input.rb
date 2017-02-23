@@ -16,6 +16,7 @@ module Bitmovin
       url
       username
       password
+      created_at
       region
       bucket
       object_key

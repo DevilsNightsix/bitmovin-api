@@ -8,10 +8,10 @@ require 'bitmovin/transfer_job'
 require 'bitmovin/job'
 
 module Bitmovin
-  
+
   API_URL = 'https://portal.bitcodin.com/api'
   API_URI = URI(API_URL)
-  
+
   @@api_key = nil
   @@http = Net::HTTP.new API_URI.host, API_URI.port
   @@http.use_ssl = API_URI.scheme == "https"
