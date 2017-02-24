@@ -115,14 +115,14 @@ module Bitmovin
       # @param status [String, Symbol] Available values: all | finished | enqueued | inprogress | error
       # @param page [Integer] number of page
       # @param reload [Integer] Force reload from server
-      # @return [Array<Bitmovin::Job>] array of encoding profiles
+      # @return [Array<Bitmovin::Job>] array of encoding jobs
       #
       def list(status = :all, page = 1, reload = false)
         var_name = :"@#{status}_list#{ page }"
 
         val = instance_variable_get var_name
 
-        return val if val && !relaod
+        return val if val && !reload
 
         get = Net::HTTP::Get.new "/api/jobs/#{ page }/#{ status }", initheaders = headers
 

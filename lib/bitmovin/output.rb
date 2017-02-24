@@ -85,6 +85,33 @@ module Bitmovin
       reload_details
     end
 
+    class << self
+      include Bitmovin::Helpers
+
+      ##
+      # Get lsit of available bitmovin outputs (10 per page)
+      #
+      # @param page [Number] page number
+      # @param reload [Boolean] force reload
+      #
+      # @return [Array<Bitmovin::Output>] array of bitmovin outputs
+      #
+      def list(page = 1, reload = false)
+        var_name = :"@list_p#{ page }"
+        val = instance_variable_get var_name
+
+        return val if val && !reload
+
+        get = Net::HTTP::Get.new "/api/outputs/?page=#{ page }", initheaders = headers
+
+        response = Bitmovin.http.request get
+
+        list = prepare_response_json(response.body).map { |output| Bitmovin::Output.new(output) }
+
+        val = instance_variable_set var_name, list
+      end
+    end
+
     private
 
     ##

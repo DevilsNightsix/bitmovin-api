@@ -4,6 +4,10 @@ require 'bitmovin/input'
 
 class InputTest < MiniTest::Test
 
+  def setup
+    Bitmovin.api_key = "somefuncyapikey"
+  end
+
   def test_input_instantiating_with_url
     input = Bitmovin::Input.new("https://bucket-name.s3.amazonaws.com/path/to/file.txt",
       type: 's3',
@@ -27,8 +31,6 @@ class InputTest < MiniTest::Test
   end
 
   def test_create_method_should_create_input_with_given_params
-    Bitmovin.api_key = "somefuncyapikey"
-
     input = Bitmovin::Input.create(
       bucket: "bucket-name",
       object_key: "/path/to/file.txt",
@@ -41,8 +43,6 @@ class InputTest < MiniTest::Test
   end
 
   def test_get_input_details
-    Bitmovin.api_key = "somefuncyapikey"
-
     id = Bitmovin::Input.create(
       bucket: "bucket-name",
       object_key: "/path/to/file.txt",
@@ -58,8 +58,6 @@ class InputTest < MiniTest::Test
   end
 
   def test_create_raises_error_when_required_parameter_access_key_not_given
-    Bitmovin.api_key = "somefuncyapikey"
-
     assert_raises Bitmovin::ApiParameterEmptyError, "Is required" do
       Bitmovin::Input.create(
         bucket: "bucket-name",
@@ -71,8 +69,6 @@ class InputTest < MiniTest::Test
   end
 
   def test_create_raises_error_when_required_parameter_access_secret_not_given
-    Bitmovin.api_key = "somefuncyapikey"
-
     assert_raises Bitmovin::ApiParameterEmptyError, "Is required" do
       Bitmovin::Input.create(
         bucket: "bucket-name",
@@ -81,5 +77,11 @@ class InputTest < MiniTest::Test
         access_key: "awsS3Key"
       )
     end
+  end
+
+  def test_get_inputs_list
+    list = Bitmovin::Input.list
+
+    assert_kind_of Bitmovin::Input, list.sample
   end
 end

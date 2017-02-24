@@ -4,6 +4,10 @@ require 'bitmovin/output'
 
 class OutputTest < MiniTest::Test
 
+  def setup
+    Bitmovin.api_key = "somefuncyapikey"
+  end
+
   def test_output_instantiating
     output = Bitmovin::Output.new(
       type: 's3',
@@ -18,7 +22,6 @@ class OutputTest < MiniTest::Test
   end
 
   def test_output_creation
-    Bitmovin.api_key = "somefuncyapikey"
     output = Bitmovin::Output.create(
       type: 's3',
       access_key: 'awsS3Key',
@@ -32,7 +35,6 @@ class OutputTest < MiniTest::Test
   end
 
   def test_create_of_already_initialized_output
-    Bitmovin.api_key = "somefuncyapikey"
     output = Bitmovin::Output.new(
       type: 's3',
       access_key: 'awsS3Key',
@@ -48,8 +50,6 @@ class OutputTest < MiniTest::Test
   end
 
   def test_get_output_details_by_id
-    Bitmovin.api_key = "somefuncyapikey"
-
     output_id = Bitmovin::Output.new(
       type: 's3',
       access_key: 'awsS3Key',
@@ -62,5 +62,11 @@ class OutputTest < MiniTest::Test
     output = Bitmovin::Output.new(output_id: output_id)
 
     assert output.details[:output_id] == output_id
+  end
+
+  def test_get_list_of_inputs
+    list = Bitmovin::Output.list
+
+    assert_kind_of Bitmovin::Output, list.sample
   end
 end

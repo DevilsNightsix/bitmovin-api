@@ -81,4 +81,28 @@ class BitmovinClientTest < MiniTest::Test
 
     assert transfer.created_at != nil
   end
+
+  def test_get_encoding_profiles_list
+    list = client.get_encoding_profiles_list
+
+    assert_kind_of Bitmovin::EncodingProfile, list.sample
+  end
+
+  def test_get_jobs_list
+    list = client.get_jobs_list
+
+    assert_kind_of Bitmovin::Job, list.sample
+  end
+
+  def test_get_inputs_list
+    list = client.get_inputs_list
+
+    assert_kind_of Bitmovin::Input, list.sample
+  end
+
+  def test_get_outputs_list
+    list = client.get_outputs_list
+
+    assert_kind_of Bitmovin::Output, list.sample
+  end
 end

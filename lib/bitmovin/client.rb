@@ -216,5 +216,49 @@ module Bitmovin
     def transfer_job(params={})
       Bitmovin::TransferJob.create(params)
     end
+
+    ##
+    # Get list of available encoding profiles by pages per 10
+    # @param page [Integer] number of page
+    # @return [Array<Bitmovin::EncodingProfile>] array of encoding profiles
+    #
+    def get_encoding_profiles_list(page = 1)
+      Bitmovin::EncodingProfile.list(page)
+    end
+
+    ##
+    # Get list of available jobs (10 Jobs per page)
+    # @param status [String, Symbol] Available values: all | finished | enqueued | inprogress | error
+    # @param page [Integer] number of page
+    # @param reload [Integer] Force reload from server
+    # @return [Array<Bitmovin::Job>] array of encoding jobs
+    #
+    def get_jobs_list(status = :all, page = 1, reload = false)
+      Bitmovin::Job.list(status, page, reload)
+    end
+
+    ##
+    # Get lsit of available bitmovin inputs (10 per page)
+    #
+    # @param page [Number] page number
+    # @param reload [Boolean] force reload
+    #
+    # @return [Array<Bitmovin::Input>] array of bitmovin inputs
+    #
+    def get_inputs_list(page = 1, reload = false)
+      Bitmovin::Input.list(page, reload)
+    end
+
+    ##
+    # Get lsit of available bitmovin outputs (10 per page)
+    #
+    # @param page [Number] page number
+    # @param reload [Boolean] force reload
+    #
+    # @return [Array<Bitmovin::Output>] array of bitmovin outputs
+    #
+    def get_outputs_list(page = 1, reload = false)
+      Bitmovin::Output.list(page, reload)
+    end
   end
 end

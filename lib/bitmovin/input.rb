@@ -116,10 +116,41 @@ module Bitmovin
     ##
     # Get bitmovin input details
     # @param reload [Boolean] force data reload from server
+    #
     def details(reload = false)
       return @params if !reload && @params
 
       reload_details
+    end
+
+
+    class << self
+      include Bitmovin::Helpers
+
+
+      ##
+      # Get lsit of available bitmovin inputs (10 per page)
+      #
+      # @param page [Number] page number
+      # @param reload [Boolean] force reload
+      #
+      # @return [Array<Bitmovin::Input>] array of bitmovin inputs
+      #
+      def list(page = 1, reload = false)
+        var_name = :"@list_p#{ page }"
+        val = instance_variable_get(var_name)
+
+        return val if val && !reload
+
+        get = Net::HTTP::Get.new "/api/inputs/#{ page }", initheaders = headers
+
+        response = Bitmovin.http.request get
+
+        list = prepare_response_json(response.body).map { |input| Bitmovin::Input.new(input) }
+
+        val = instance_variable_set(var_name, list)
+      end
+
     end
 
     private
