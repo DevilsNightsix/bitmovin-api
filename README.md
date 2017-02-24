@@ -1,3 +1,5 @@
+[![Gem Version](https://badge.fury.io/rb/bitmovin-api.svg)](https://badge.fury.io/rb/bitmovin-api)
+
 The Leightweight full-featured  API client for [bitmovin cloud transcoding system](http://www.bitmovin.com) written in Ruby with no additional dependencies.
 
 

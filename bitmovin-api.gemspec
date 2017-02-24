@@ -3,7 +3,7 @@ require File.expand_path('../lib/bitmovin/version', __FILE__)
 Gem::Specification.new do |s|
   s.name          = 'bitmovin-api'
   s.version       = Bitmovin::VERSION
-  s.date          = '2017-02-09'
+  s.date          = Date.today.to_s
   s.summary       = "Bitmovin api client"
   s.description   = "Simple ruby wrapper for bitmovin encoding service api. Written in pure ruby with no runtime dependencies."
   s.authors       = ["DevilsNightsix"]
